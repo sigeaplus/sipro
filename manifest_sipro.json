@@ -1,0 +1,68 @@
+{
+  "name": "SIPRO+ — Secretaria e Administração",
+  "short_name": "SIPRO+",
+  "description": "Portal da Secretaria e Administração",
+  "start_url": "./secretaria_dashboard.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#1D4ED8",
+  "theme_color": "#1D4ED8",
+  "lang": "pt-BR",
+  "categories": [
+    "education",
+    "productivity"
+  ],
+  "icons": [
+    {
+      "src": "sipro_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "sipro_logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "sipro_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "sipro_logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Secretaria",
+      "short_name": "Secretaria",
+      "url": "./secretaria_dashboard.html",
+      "icons": [
+        {
+          "src": "sipro_logo.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    },
+    {
+      "name": "Administrador",
+      "short_name": "Administrador",
+      "url": "./admin_dashboard.html",
+      "icons": [
+        {
+          "src": "sipro_logo.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
+    }
+  ]
+}
