@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<link rel="icon" href="favicon.png">
+</head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="theme-color" content="#4A2C6E"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="SIGEA+"/>
+  <link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+  <link rel="icon" type="image/png" href="favicon.png"/>
+  <link rel="manifest" href="manifest.json"/>
+  <title>Acesso ao sistema</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet"/>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Sora', sans-serif;
+      background: #F4F2FF;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .login-root {
+      width: 100%;
+      max-width: 900px;
+      min-height: 580px;
+      display: flex;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 8px 48px rgba(108,79,212,0.15);
+    }
+
+    .login-left {
+      flex: 1;
+      background: linear-gradient(140deg, #6C4FD4 0%, #4B6FE8 60%, #7B4FE8 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 52px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .circle-deco { position: absolute; border-radius: 50%; border: 40px solid rgba(255,255,255,0.08); }
+    .circle-deco.c1 { width: 260px; height: 260px; top: -70px; right: -70px; }
+    .circle-deco.c2 { width: 200px; height: 200px; bottom: -80px; left: -50px; }
+
+    .logo-badge {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: rgba(255,255,255,0.15);
+      border: 1px solid rgba(255,255,255,0.25);
+      border-radius: 10px; padding: 8px 14px;
+      margin-bottom: 32px; width: fit-content;
+      position: relative; z-index: 2;
+    }
+    .logo-icon { width: 28px; height: 28px; background: #FF8C38; border-radius: 6px; display: flex; align-items: center; justify-content: center; }
+    .logo-text { font-family: 'Space Mono', monospace; font-size: 14px; font-weight: 700; color: #fff; letter-spacing: 1px; }
+
+    .tagline { font-size: 28px; font-weight: 700; color: #fff; line-height: 1.3; margin-bottom: 12px; position: relative; z-index: 2; }
+    .tagline span { color: #FFB775; }
+    .sub-tagline { font-size: 13px; color: rgba(255,255,255,0.65); line-height: 1.7; max-width: 300px; position: relative; z-index: 2; }
+
+    .features-list { margin-top: 40px; display: flex; flex-direction: column; gap: 13px; position: relative; z-index: 2; }
+    .feature-item { display: flex; align-items: center; gap: 10px; }
+    .feature-dot { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .feature-text { font-size: 13px; color: rgba(255,255,255,0.8); }
+
+    .login-right { width: 400px; background: #fff; display: flex; flex-direction: column; justify-content: center; padding: 52px 44px; }
+
+    .form-title { font-size: 22px; font-weight: 700; color: #1E1248; margin-bottom: 4px; }
+    .form-subtitle { font-size: 13px; color: #9A8FC0; margin-bottom: 26px; }
+
+
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 11px; font-weight: 600; color: #6C4FD4; text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 7px; }
+    .form-input { width: 100%; padding: 11px 14px; background: #F8F6FF; border: 1.5px solid #E4DDFF; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 14px; color: #1E1248; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+    .form-input:focus { border-color: #6C4FD4; box-shadow: 0 0 0 3px rgba(108,79,212,0.1); }
+    .form-input::placeholder { color: #C4BAE8; }
+
+    .input-wrap { position: relative; }
+    .input-eye { position: absolute; right: 13px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #C4BAE8; background: none; border: none; display: flex; align-items: center; transition: color 0.2s; }
+
+    .btn-login { width: 100%; padding: 13px; background: linear-gradient(135deg, #FF8C38, #FF6B00); border: none; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 700; color: #fff; cursor: pointer; margin-top: 6px; transition: opacity 0.2s, transform 0.1s; box-shadow: 0 4px 16px rgba(255,140,56,0.3); display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .btn-login:hover { opacity: 0.9; }
+    .btn-login:active { transform: scale(0.98); }
+    .btn-login:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    .divider { display: flex; align-items: center; gap: 10px; margin: 18px 0 14px; color: #C4BAE8; font-size: 11px; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+    .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #E4DDFF; }
+
+    .btn-google { width: 100%; padding: 11px 14px; background: #fff; border: 1.5px solid #E4DDFF; border-radius: 8px; font-family: 'Sora', sans-serif; font-size: 14px; font-weight: 600; color: #1E1248; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: background 0.2s, border-color 0.2s, box-shadow 0.2s; }
+    .btn-google:hover { background: #F8F6FF; border-color: #6C4FD4; box-shadow: 0 0 0 3px rgba(108,79,212,0.08); }
+    .btn-google:active { transform: scale(0.98); }
+
+    .spinner { width: 16px; height: 16px; border: 2px solid rgba(255,255,255,0.4); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; display: none; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-msg { display: none; background: #FFF4F4; border: 1px solid #FBBFBF; border-radius: 7px; padding: 10px 13px; font-size: 13px; color: #C0392B; margin-bottom: 14px; text-align: center; }
+
+    .footer-note { margin-top: 24px; text-align: center; font-size: 11px; color: #C4BAE8; }
+    .version { font-family: 'Space Mono', monospace; font-size: 10px; color: #D4CDEF; display: block; margin-top: 3px; }
+
+    @media (max-width: 640px) {
+      .login-left { display: none; }
+      .login-right { width: 100%; padding: 40px 28px; }
+    }
+  </style>
+  <meta name="mobile-web-app-capable" content="yes"/>
+</head>
+<body>
+
+<div class="login-root">
+  <div class="login-left">
+    <div class="circle-deco c1"></div>
+    <div class="circle-deco c2"></div>
+    <div class="logo-badge">
+      <div class="logo-icon">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="2" width="5" height="5" rx="1" fill="white"/>
+          <rect x="9" y="2" width="5" height="5" rx="1" fill="white" opacity="0.6"/>
+          <rect x="2" y="9" width="5" height="5" rx="1" fill="white" opacity="0.6"/>
+          <rect x="9" y="9" width="5" height="5" rx="1" fill="white"/>
+        </svg>
+      </div>
+      <span class="logo-text">SIGEA+</span>
+    </div>
+    <div class="tagline">Sistema Integrado de<br> Gestão<span> Escolar </span>Avançada</div>
+    <p class="sub-tagline">Sistema escolar completo para professores, alunos, secretários (as) escolares e muito mais.</p>
+    <div class="features-list">
+      <div class="feature-item">
+        <div class="feature-dot"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="feature-text">Controle de chamadas e frequência</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="feature-text">Lançamento de notas por trimestre</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="feature-text">Registro e histórico de aulas</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="feature-text">Fechamento de trimestre guiado</span>
+      </div>
+      <div class="feature-item">
+        <div class="feature-dot"><svg width="11" height="11" viewBox="0 0 12 12" fill="none"><polyline points="2,6 5,9 10,3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <span class="feature-text">Relatórios por turma e aluno</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-right">
+    <div class="form-title">Bem-vindo(a) de volta</div>
+    <div class="form-subtitle">Faça login para acessar o sistema</div>
+
+
+    <div id="error-msg" class="error-msg"></div>
+
+    <div class="form-group">
+      <label class="form-label" id="id-label">Login</label>
+      <input class="form-input" id="input-id" type="text" placeholder="Digite seu login" autocomplete="username"/>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Senha</label>
+      <div class="input-wrap">
+        <input class="form-input" id="input-senha" type="password" placeholder="Digite sua senha" autocomplete="current-password" style="padding-right:42px;"/>
+        <button class="input-eye" onclick="toggleSenha()" type="button" tabindex="-1">
+          <svg id="eye-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <button class="btn-login" id="btn-login" type="button" onclick="fazerLogin()">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-text">Entrar no sistema</span>
+    </button>
+
+    <div class="divider">ou</div>
+
+    <button class="btn-google" onclick="entrarComGoogle()" type="button">
+      <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+        <path fill="none" d="M0 0h48v48H0z"/>
+      </svg>
+      Entrar com o Google
+    </button>
+
+    <div class="footer-note">
+      SIGEA+
+      <span class="version">Sistema Integrado de Gestão Escolar Avançada v3.0</span>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://biocjxggjjfeqmpuysik.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpb2NqeGdnampmZXFtcHV5c2lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODUwOTQsImV4cCI6MjA4OTc2MTA5NH0.3bL3dKqiWGoHROE6vSzf-7Orp0GLcLpn4mHtUSwC0dU';
+
+  const GOOGLE_CLIENT_ID = '809381065699-dm4ie2ob9kioi4nh1ureufkorcc77kck.apps.googleusercontent.com';
+
+  function entrarComGoogle() {
+    const client = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: 'openid email profile',
+      callback: async (response) => {
+        if (response.error) { mostrarErro('Erro ao autenticar com o Google. Tente novamente.'); return; }
+        await loginComTokenGoogle(response.access_token);
+      },
+    });
+    client.requestAccessToken();
+  }
+
+  async function loginComTokenGoogle(accessToken) {
+    try {
+      const profileRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', { headers: { Authorization: `Bearer ${accessToken}` } });
+      const profile = await profileRes.json();
+      const email = profile.email;
+      if (!email) { mostrarErro('Não foi possível obter o e-mail do Google.'); return; }
+      const url = `${SUPABASE_URL}/rest/v1/users?email=ilike.${encodeURIComponent(email)}&select=id,login,role,nome,escola_id,escolas_ids,tipo_secretaria,aluno_id,turma_id`;
+      const res = await fetch(url, { headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` } });
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const user = data[0];
+        sessionStorage.setItem('ded_user', JSON.stringify(user));
+        redirecionarPorRole(user.role);
+      } else {
+        mostrarErro('Nenhuma conta encontrada para este e-mail do Google.');
+      }
+    } catch (err) {
+      mostrarErro('Erro de conexão com o Google. Tente novamente.');
+    }
+  }
+
+  function redirecionarPorRole(role) {
+    if (role === 'admin') window.location.href = 'https://siproplus.vercel.app/admin_dashboard.html';
+    else if (role === 'secretaria') window.location.href = 'https://siproplus.vercel.app/secretaria_dashboard.html';
+    else if (role === 'representante') window.location.href = 'https://sirecplus.vercel.app';
+    else if (role === 'aluno') window.location.href = 'https://sialuno.vercel.app';
+    else window.location.href = 'https://sidedplus.vercel.app';
+  }
+
+
+  function toggleSenha() {
+    const inp = document.getElementById('input-senha');
+    const icon = document.getElementById('eye-icon');
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      inp.type = 'password';
+      icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  }
+
+  function mostrarErro(msg) {
+    const el = document.getElementById('error-msg');
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+
+  function esconderErro() {
+    document.getElementById('error-msg').style.display = 'none';
+  }
+
+  function setLoading(on) {
+    document.getElementById('btn-login').disabled = on;
+    document.getElementById('spinner').style.display = on ? 'block' : 'none';
+    document.getElementById('btn-text').textContent = on ? 'Verificando...' : 'Entrar no sistema';
+  }
+
+  async function fazerLogin() {
+    console.log('[LOGIN] Iniciando...');
+    const login = document.getElementById('input-id').value.trim();
+    const senha = document.getElementById('input-senha').value;
+    console.log('[LOGIN] login:', login, '| senha preenchida:', !!senha);
+    esconderErro();
+
+    if (!login || !senha) {
+      mostrarErro('Preencha o login e a senha para continuar.');
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      const url = `${SUPABASE_URL}/rest/v1/users?login=eq.${encodeURIComponent(login)}&senha=eq.${encodeURIComponent(senha)}&select=id,login,role,nome,escola_id,escolas_ids,tipo_secretaria,aluno_id,turma_id`;
+      console.log('[LOGIN] URL:', url);
+
+      const res = await fetch(url, {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      });
+
+      console.log('[LOGIN] status:', res.status);
+      const data = await res.json();
+      console.log('[LOGIN] data:', data);
+
+      if (Array.isArray(data) && data.length > 0) {
+        const user = data[0];
+        sessionStorage.setItem('ded_user', JSON.stringify(user));
+        console.log('[LOGIN] Redirecionando para role:', user.role);
+        if (user.role === 'admin') {
+          window.location.href = 'https://siproplus.vercel.app/admin_dashboard.html';
+        } else if (user.role === 'secretaria') {
+          window.location.href = 'https://siproplus.vercel.app/secretaria_dashboard.html';
+        } else if (user.role === 'representante') {
+          window.location.href = 'https://sirecplus.vercel.app';
+        } else if (user.role === 'aluno') {
+          window.location.href = 'https://sialuno.vercel.app';
+        } else {
+          window.location.href = 'https://sidedplus.vercel.app';
+        }
+      } else {
+        mostrarErro('Login ou senha incorretos. Tente novamente.');
+      }
+    } catch (err) {
+      console.error('[LOGIN] Erro:', err);
+      mostrarErro('Erro de conexão. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') fazerLogin();
+  });
+</script>
+
+<!-- PWA -->
+<div id="pwa-banner" style="display:none;position:fixed;bottom:20px;left:50%;transform:translateX(-50%);z-index:99999;background:#1E1248;color:#fff;border-radius:16px;padding:14px 20px;align-items:center;gap:14px;box-shadow:0 8px 32px rgba(0,0,0,0.3);max-width:340px;width:calc(100% - 32px);">
+  <div style="width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;background:#FF8C38;">
+    <img src="icon-192.png" width="44" height="44" style="object-fit:cover;display:block;" onerror="this.style.display='none'"/>
+  </div>
+  <div style="flex:1;min-width:0;">
+    <div style="font-size:13px;font-weight:700;font-family:'Sora',sans-serif;">Instalar SIGEA+</div>
+    <div style="font-size:11px;color:rgba(255,255,255,0.65);font-family:'Sora',sans-serif;" id="pwa-sub">Adicione à tela inicial para acesso rápido</div>
+  </div>
+  <div style="display:flex;gap:8px;flex-shrink:0;">
+    <button id="pwa-btn" onclick="pwaInstalar()" style="padding:8px 14px;border-radius:8px;border:none;background:#FF8C38;color:#fff;font-family:'Sora',sans-serif;font-size:12px;font-weight:700;cursor:pointer;">Instalar</button>
+    <button onclick="pwaDismiss()" style="padding:8px 10px;border-radius:8px;border:1px solid rgba(255,255,255,0.2);background:none;color:rgba(255,255,255,0.5);font-size:16px;cursor:pointer;line-height:1;">✕</button>
+  </div>
+</div>
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+let _pwaPrompt = null;
+const _isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+const _isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+function _mostrarBanner() {
+  if (_isStandalone) return;
+  const ts = localStorage.getItem('pwa_ts');
+  if (ts && Date.now() - Number(ts) < 7*24*60*60*1000) return;
+  const b = document.getElementById('pwa-banner');
+  if (!b) return;
+  if (_isIOS) {
+    document.getElementById('pwa-sub').textContent = 'Toque em ⎦ → "Adicionar à Tela de Início"';
+    document.getElementById('pwa-btn').textContent = 'OK';
+    document.getElementById('pwa-btn').onclick = pwaDismiss;
+  }
+  b.style.display = 'flex';
+}
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); _pwaPrompt = e; setTimeout(_mostrarBanner, 2500); });
+if (_isIOS) setTimeout(_mostrarBanner, 2500);
+function pwaInstalar() {
+  if (!_pwaPrompt) { pwaDismiss(); return; }
+  _pwaPrompt.prompt();
+  _pwaPrompt.userChoice.then(r => { if (r.outcome==='accepted') pwaDismiss(); _pwaPrompt = null; });
+}
+function pwaDismiss() {
+  document.getElementById('pwa-banner').style.display = 'none';
+  localStorage.setItem('pwa_ts', String(Date.now()));
+}
+window.addEventListener('appinstalled', pwaDismiss);
+</script>
+</body>
+</html>

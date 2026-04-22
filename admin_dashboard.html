@@ -1041,7 +1041,7 @@ let escolas = [], professores = [], turmas = [], alunos = [], usuarios = [];
 // Verificar sessão
 const session = JSON.parse(sessionStorage.getItem('ded_user') || 'null');
 if (!session || session.role !== 'admin') {
-  window.location.href = 'login.html';
+  window.location.href = 'index.html';
 }
 
 // Preencher nome admin
@@ -2651,7 +2651,7 @@ async function excluirSecretario(id) {
   } catch(e) { alert('Erro: ' + e.message); }
 }
 
-function sair() { sessionStorage.clear(); window.location.href = 'login.html'; }
+function sair() { sessionStorage.clear(); window.location.href = 'index.html'; }
 
 // INIT
 document.getElementById('btn-add').style.display = 'none';
