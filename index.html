@@ -11,109 +11,36 @@
   <link rel="manifest" href="manifest.json"/>
   <title>SIPRO+ — Secretaria & Admin</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <style>
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    :root{
-      --accent:#2563EB;--text:#0F172A;--muted:#64748B;
-      --border:#E2E8F0;--bg:#F0F9FF;--card:#fff;
-    }
+    :root{--accent:#2563EB;--text:#0F172A;--muted:#64748B;--border:#E2E8F0;--bg:#F0F9FF;--card:#fff;}
     body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden}
-
-    /* NAV */
-    nav{
-      position:fixed;top:0;left:0;right:0;z-index:100;
-      display:flex;align-items:center;justify-content:space-between;
-      padding:0 32px;height:60px;
-      background:#1E293B;
-      box-shadow:0 2px 12px rgba(0,0,0,0.15);
-    }
+    nav{position:fixed;top:0;left:0;right:0;z-index:100;display:flex;align-items:center;justify-content:space-between;padding:0 32px;height:60px;background:#1E293B;box-shadow:0 2px 12px rgba(0,0,0,0.15);}
     .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none}
     .nav-brand img{width:34px;height:34px;border-radius:9px;object-fit:cover}
     .nav-brand span{font-weight:800;font-size:17px;color:#fff;letter-spacing:0.5px}
-    .nav-cta{
-      padding:8px 20px;background:#fff;
-      border:none;border-radius:8px;
-      font-family:'Inter',sans-serif;font-size:13px;font-weight:700;
-      color:#2563EB;cursor:pointer;
-      transition:opacity 0.2s,transform 0.1s;
-    }
+    .nav-cta{padding:8px 20px;background:#fff;border:none;border-radius:8px;font-family:'Inter',sans-serif;font-size:13px;font-weight:700;color:#2563EB;cursor:pointer;transition:opacity 0.2s,transform 0.1s;}
     .nav-cta:hover{opacity:0.9;transform:translateY(-1px)}
-
-    /* HERO */
-    .hero{
-      min-height:100vh;
-      background:linear-gradient(135deg,#1E293B 0%,#2563EB 100%);
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;padding:100px 24px 80px;
-      position:relative;overflow:hidden;
-    }
-    .hero::after{
-      content:'';position:absolute;inset:0;
-      background:radial-gradient(ellipse at 60% 40%,rgba(255,255,255,0.07) 0%,transparent 65%);
-      pointer-events:none;
-    }
-    .badge{
-      display:inline-flex;align-items:center;gap:8px;
-      background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);
-      border-radius:100px;padding:6px 16px;
-      font-size:11px;font-weight:700;color:#10B981;
-      letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;
-      position:relative;z-index:1;
-    }
+    .hero{min-height:100vh;background:linear-gradient(135deg,#1E293B 0%,#2563EB 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:100px 24px 80px;position:relative;overflow:hidden;}
+    .hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 60% 40%,rgba(255,255,255,0.07) 0%,transparent 65%);pointer-events:none;}
+    .badge{display:inline-flex;align-items:center;gap:8px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.4);border-radius:100px;padding:6px 16px;font-size:11px;font-weight:700;color:#10B981;letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;position:relative;z-index:1;}
     .badge-dot{width:6px;height:6px;border-radius:50%;background:#10B981;animation:pulse 1.5s infinite}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-    .hero h1{
-      font-size:clamp(48px,9vw,88px);font-weight:800;
-      line-height:1;color:#fff;
-      margin-bottom:16px;position:relative;z-index:1;
-    }
+    .hero h1{font-size:clamp(48px,9vw,88px);font-weight:800;line-height:1;color:#fff;margin-bottom:16px;position:relative;z-index:1;}
     .hero h1 span{opacity:0.75;font-weight:300}
-    .hero p{
-      font-size:clamp(14px,2vw,17px);color:rgba(255,255,255,0.75);
-      max-width:460px;line-height:1.7;margin-bottom:40px;
-      position:relative;z-index:1;
-    }
-    .btn-hero{
-      padding:14px 36px;background:#fff;
-      border:none;border-radius:12px;
-      font-family:'Inter',sans-serif;font-size:15px;font-weight:800;
-      color:#2563EB;cursor:pointer;
-      box-shadow:0 8px 32px rgba(0,0,0,0.2);
-      transition:all 0.2s;position:relative;z-index:1;
-    }
+    .hero p{font-size:clamp(14px,2vw,17px);color:rgba(255,255,255,0.75);max-width:460px;line-height:1.7;margin-bottom:40px;position:relative;z-index:1;}
+    .btn-hero{padding:14px 36px;background:#fff;border:none;border-radius:12px;font-family:'Inter',sans-serif;font-size:15px;font-weight:800;color:#2563EB;cursor:pointer;box-shadow:0 8px 32px rgba(0,0,0,0.2);transition:all 0.2s;position:relative;z-index:1;}
     .btn-hero:hover{transform:translateY(-3px);box-shadow:0 14px 40px rgba(0,0,0,0.28)}
-
-    /* FEATURES */
-    .features{
-      display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
-      gap:18px;padding:60px 32px 80px;max-width:960px;margin:0 auto;
-    }
-    .feat-card{
-      background:var(--card);border:1.5px solid var(--border);
-      border-radius:14px;padding:26px 22px;
-      transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;
-      box-shadow:0 2px 8px rgba(0,0,0,0.05);
-    }
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:18px;padding:60px 32px 80px;max-width:960px;margin:0 auto;}
+    .feat-card{background:var(--card);border:1.5px solid var(--border);border-radius:14px;padding:26px 22px;transition:border-color 0.2s,transform 0.2s,box-shadow 0.2s;box-shadow:0 2px 8px rgba(0,0,0,0.05);}
     .feat-card:hover{border-color:#10B981;transform:translateY(-4px);box-shadow:0 8px 24px rgba(37,99,235,0.12)}
     .feat-icon{font-size:28px;margin-bottom:12px}
     .feat-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:5px}
     .feat-desc{font-size:13px;color:var(--muted);line-height:1.6}
-
-    /* OVERLAY LOGIN */
-    .overlay{
-      display:none;position:fixed;inset:0;z-index:200;
-      background:rgba(15,23,42,0.97);
-      backdrop-filter:blur(14px);
-      align-items:center;justify-content:center;padding:20px;
-    }
+    .overlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(15,23,42,0.97);backdrop-filter:blur(14px);align-items:center;justify-content:center;padding:20px;}
     .overlay.active{display:flex}
-    .login-card{
-      width:100%;max-width:400px;
-      background:#fff;
-      border:1.5px solid #E2E8F0;
-      border-radius:20px;padding:40px 36px;
-      position:relative;animation:popIn 0.3s ease;
-    }
+    .login-card{width:100%;max-width:400px;background:#fff;border:1.5px solid #E2E8F0;border-radius:20px;padding:40px 36px;position:relative;animation:popIn 0.3s ease;}
     @keyframes popIn{from{opacity:0;transform:scale(0.95)}to{opacity:1;transform:scale(1)}}
     .close-btn{position:absolute;top:14px;right:16px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--muted);transition:color 0.2s}
     .close-btn:hover{color:var(--text)}
@@ -124,127 +51,60 @@
     .lcard-title{font-size:19px;font-weight:700;color:var(--text);margin-bottom:3px}
     .lcard-sub{font-size:13px;color:var(--muted);margin-bottom:24px}
     .form-label{display:block;font-size:11px;font-weight:700;color:#2563EB;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:6px}
-    .form-input{
-      width:100%;padding:11px 13px;
-      background:var(--bg);border:1.5px solid var(--border);
-      border-radius:9px;font-family:'Inter',sans-serif;font-size:14px;
-      color:var(--text);outline:none;
-      transition:border-color 0.2s,box-shadow 0.2s;
-    }
+    .form-input{width:100%;padding:11px 13px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;font-family:'Inter',sans-serif;font-size:14px;color:var(--text);outline:none;transition:border-color 0.2s,box-shadow 0.2s;}
     .form-input:focus{border-color:#2563EB;box-shadow:0 0 0 3px rgba(37,99,235,0.12)}
     .form-input::placeholder{color:var(--muted)}
     .form-group{margin-bottom:14px}
     .input-wrap{position:relative}
     .eye-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--muted);display:flex;align-items:center}
-    .btn-login{
-      width:100%;padding:13px;margin-top:6px;
-      background:#2563EB;border:none;border-radius:9px;
-      font-family:'Inter',sans-serif;font-size:14px;font-weight:700;
-      color:#fff;cursor:pointer;
-      box-shadow:0 4px 16px rgba(37,99,235,0.3);
-      display:flex;align-items:center;justify-content:center;gap:8px;
-      transition:opacity 0.2s,transform 0.1s;
-    }
+    .btn-login{width:100%;padding:13px;margin-top:6px;background:#2563EB;border:none;border-radius:9px;font-family:'Inter',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 4px 16px rgba(37,99,235,0.3);display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity 0.2s,transform 0.1s;}
     .btn-login:hover{opacity:0.9}
     .btn-login:active{transform:scale(0.98)}
     .btn-login:disabled{opacity:0.55;cursor:not-allowed}
     .divider{display:flex;align-items:center;gap:10px;margin:16px 0}
     .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
     .divider span{font-size:11px;color:var(--muted)}
-    .btn-google{
-      width:100%;padding:11px;background:var(--bg);
-      border:1.5px solid var(--border);border-radius:9px;
-      font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--text);
-      cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;
-      transition:background 0.2s,border-color 0.2s;
-    }
+    .btn-google{width:100%;padding:11px;background:var(--bg);border:1.5px solid var(--border);border-radius:9px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:9px;transition:background 0.2s,border-color 0.2s;}
     .btn-google:hover{background:var(--card);border-color:#2563EB}
     .btn-google svg{width:18px;height:18px}
-    .error-msg{
-      display:none;background:rgba(239,68,68,0.08);
-      border:1px solid rgba(239,68,68,0.3);border-radius:8px;
-      padding:10px 12px;font-size:13px;color:#EF4444;
-      margin-bottom:12px;text-align:center;
-    }
+    .error-msg{display:none;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:10px 12px;font-size:13px;color:#EF4444;margin-bottom:12px;text-align:center;}
     .spinner{width:16px;height:16px;border:2px solid rgba(255,255,255,0.3);border-top-color:#fff;border-radius:50%;animation:spin 0.7s linear infinite;display:none}
     @keyframes spin{to{transform:rotate(360deg)}}
     @media(max-width:600px){nav{padding:0 16px}.features{padding:40px 16px 60px}.login-card{padding:32px 22px}}
   </style>
 </head>
 <body>
-
 <nav>
-  <a class="nav-brand" href="#">
-    <img src="sipro_logo.png" alt="SIPRO+"/>
-    <span>SIPRO+</span>
-  </a>
+  <a class="nav-brand" href="#"><img src="sipro_logo.png" alt="SIPRO+"/><span>SIPRO+</span></a>
   <button class="nav-cta" onclick="abrirLogin()">Acessar</button>
 </nav>
-
 <section class="hero">
   <div class="badge"><span class="badge-dot"></span>Secretaria & Administração</div>
   <h1>Gestão escolar<br/><span>com precisão.</span></h1>
   <p>Matrículas, documentos, turmas e relatórios institucionais — tudo sob controle.</p>
   <button class="btn-hero" onclick="abrirLogin()">Entrar no sistema →</button>
 </section>
-
-<div class="features"><div class="feat-card">
-      <div class="feat-icon">🗂️</div>
-      <div class="feat-title">Matrículas</div>
-      <div class="feat-desc">Gerencie matrículas e transferências.</div>
-    </div><div class="feat-card">
-      <div class="feat-icon">📄</div>
-      <div class="feat-title">Documentos</div>
-      <div class="feat-desc">Emita declarações e históricos.</div>
-    </div><div class="feat-card">
-      <div class="feat-icon">👥</div>
-      <div class="feat-title">Turmas</div>
-      <div class="feat-desc">Organize turmas e alocações.</div>
-    </div><div class="feat-card">
-      <div class="feat-icon">📊</div>
-      <div class="feat-title">Relatórios</div>
-      <div class="feat-desc">Gere relatórios institucionais.</div>
-    </div></div>
-
+<div class="features"><div class="feat-card"><div class="feat-icon">🗂️</div><div class="feat-title">Matrículas</div><div class="feat-desc">Gerencie matrículas e transferências.</div></div><div class="feat-card"><div class="feat-icon">📄</div><div class="feat-title">Documentos</div><div class="feat-desc">Emita declarações e históricos.</div></div><div class="feat-card"><div class="feat-icon">👥</div><div class="feat-title">Turmas</div><div class="feat-desc">Organize turmas e alocações.</div></div><div class="feat-card"><div class="feat-icon">📊</div><div class="feat-title">Relatórios</div><div class="feat-desc">Gere relatórios institucionais.</div></div></div>
 <div class="overlay" id="overlay">
   <div class="login-card">
     <button class="close-btn" onclick="fecharLogin()">✕</button>
-    <div class="lcard-logo">
-      <img src="sipro_logo.png" alt="SIPRO+"/>
-      <div>
-        <div class="lcard-logo-name">SIPRO+</div>
-        <div class="lcard-logo-sub">Secretaria & Administração</div>
-      </div>
-    </div>
+    <div class="lcard-logo"><img src="sipro_logo.png" alt="SIPRO+"/><div><div class="lcard-logo-name">SIPRO+</div><div class="lcard-logo-sub">Secretaria & Administração</div></div></div>
     <div class="lcard-title">Bem-vindo de volta</div>
     <div class="lcard-sub">Acesse com seu login institucional</div>
     <div id="error-msg" class="error-msg"></div>
-    <div class="form-group">
-      <label class="form-label">Login</label>
-      <input class="form-input" id="inp-login" type="text" placeholder="Seu login institucional" autocomplete="username"/>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Senha</label>
-      <div class="input-wrap">
-        <input class="form-input" id="inp-senha" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:40px"/>
-        <button class="eye-btn" onclick="toggleSenha()" type="button">
-          <svg id="eye-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-        </button>
-      </div>
-    </div>
-    <button class="btn-login" id="btn-login" onclick="fazerLogin()">
-      <span class="spinner" id="spinner"></span><span id="btn-txt">Entrar</span>
-    </button>
+    <div class="form-group"><label class="form-label">Login</label><input class="form-input" id="inp-login" type="text" placeholder="Seu login institucional" autocomplete="username"/></div>
+    <div class="form-group"><label class="form-label">Senha</label><div class="input-wrap"><input class="form-input" id="inp-senha" type="password" placeholder="••••••••" autocomplete="current-password" style="padding-right:40px"/><button class="eye-btn" onclick="toggleSenha()" type="button"><svg id="eye-ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
+    <button class="btn-login" id="btn-login" onclick="fazerLogin()"><span class="spinner" id="spinner"></span><span id="btn-txt">Entrar</span></button>
     <div class="divider"><span>ou</span></div>
     <button class="btn-google" onclick="loginGoogle()">
-      <svg viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.8 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.7-.4-3.9z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 16 19.1 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34.1 6.8 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.3 35.3 26.8 36 24 36c-5.2 0-9.6-3.3-11.3-8H6.1C9.5 37.3 16.3 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.3-2.3 4.3-4.2 5.7l6.2 5.2C37 38.7 44 33 44 24c0-1.3-.1-2.7-.4-3.9z"/></svg>
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.35-8.16 2.35-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
       Entrar com Google
     </button>
   </div>
 </div>
-
 <script>
   const SB_URL='https://biocjxggjjfeqmpuysik.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpb2NqeGdnampmZXFtcHV5c2lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODUwOTQsImV4cCI6MjA4OTc2MTA5NH0.3bL3dKqiWGoHROE6vSzf-7Orp0GLcLpn4mHtUSwC0dU',DASH='secretaria_dashboard.html';
+  const GOOGLE_CLIENT_ID='809381065699-dm4ie2ob9kioi4nh1ureufkorcc77kck.apps.googleusercontent.com';
   function abrirLogin(){document.getElementById('overlay').classList.add('active');setTimeout(()=>document.getElementById('inp-login').focus(),100)}
   function fecharLogin(){document.getElementById('overlay').classList.remove('active')}
   document.getElementById('overlay').addEventListener('click',e=>{if(e.target===document.getElementById('overlay'))fecharLogin()});
@@ -252,22 +112,25 @@
   function mostrarErro(m){const e=document.getElementById('error-msg');e.textContent=m;e.style.display='block'}
   function esconderErro(){document.getElementById('error-msg').style.display='none'}
   function setLoading(on){document.getElementById('btn-login').disabled=on;document.getElementById('spinner').style.display=on?'block':'none';document.getElementById('btn-txt').textContent=on?'Verificando...':'Entrar'}
-  async function fazerLogin(){
-    const login=document.getElementById('inp-login').value.trim();
-    const senha=document.getElementById('inp-senha').value;
-    esconderErro();
-    if(!login||!senha){mostrarErro('Preencha login e senha.');return}
-    setLoading(true);
+  function loginGoogle(){
+    const client=google.accounts.oauth2.initTokenClient({client_id:GOOGLE_CLIENT_ID,scope:'openid email profile',callback:async(r)=>{if(r.error){mostrarErro('Erro ao autenticar com o Google.');return;}await loginComGoogle(r.access_token);}});
+    client.requestAccessToken();
+  }
+  async function loginComGoogle(token){
     try{
-      const url=`${SB_URL}/rest/v1/users?login=eq.${encodeURIComponent(login)}&senha=eq.${encodeURIComponent(senha)}&select=id,login,role,nome,escola_id,escolas_ids,tipo_secretaria,aluno_id,turma_id`;
-      const res=await fetch(url,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});
+      const p=await(await fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:`Bearer ${token}`}})).json();
+      if(!p.email){mostrarErro('Não foi possível obter o e-mail do Google.');return;}
+      const res=await fetch(`${SB_URL}/rest/v1/users?email=ilike.${encodeURIComponent(p.email)}&select=id,login,role,nome,escola_id,escolas_ids,tipo_secretaria,aluno_id,turma_id`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});
       const data=await res.json();
       if(Array.isArray(data)&&data.length>0){sessionStorage.setItem('ded_user',JSON.stringify(data[0]));window.location.href=DASH;}
-      else mostrarErro('Login ou senha incorretos.');
+      else mostrarErro('Nenhuma conta encontrada para este e-mail do Google.');
     }catch{mostrarErro('Erro de conexão. Tente novamente.')}
-    finally{setLoading(false)}
   }
-  function loginGoogle(){window.location.href=`${SB_URL}/auth/v1/authorize?provider=google&redirect_to=${encodeURIComponent(window.location.origin+'/'+DASH)}`}
+  async function fazerLogin(){
+    const login=document.getElementById('inp-login').value.trim();const senha=document.getElementById('inp-senha').value;esconderErro();
+    if(!login||!senha){mostrarErro('Preencha login e senha.');return}setLoading(true);
+    try{const res=await fetch(`${SB_URL}/rest/v1/users?login=eq.${encodeURIComponent(login)}&senha=eq.${encodeURIComponent(senha)}&select=id,login,role,nome,escola_id,escolas_ids,tipo_secretaria,aluno_id,turma_id`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});const data=await res.json();if(Array.isArray(data)&&data.length>0){sessionStorage.setItem('ded_user',JSON.stringify(data[0]));window.location.href=DASH;}else mostrarErro('Login ou senha incorretos.');}catch{mostrarErro('Erro de conexão. Tente novamente.')}finally{setLoading(false)}
+  }
   document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('overlay').classList.contains('active'))fazerLogin()});
   if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script>
