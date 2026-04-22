@@ -3,6 +3,8 @@
 <head>
 <link rel="icon" href="sipro_logo.png">
 </head>
+  <link rel="icon" type="image/png" href="sipro_logo.png"/>
+  <link rel="apple-touch-icon" href="sipro_logo.png"/>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <meta name="theme-color" content="#4A2C6E"/>
@@ -1041,7 +1043,7 @@ let escolas = [], professores = [], turmas = [], alunos = [], usuarios = [];
 // Verificar sessão
 const session = JSON.parse(sessionStorage.getItem('ded_user') || 'null');
 if (!session || session.role !== 'admin') {
-  window.location.href = 'index.html';
+  window.location.href = 'login.html';
 }
 
 // Preencher nome admin
@@ -2651,7 +2653,7 @@ async function excluirSecretario(id) {
   } catch(e) { alert('Erro: ' + e.message); }
 }
 
-function sair() { sessionStorage.clear(); window.location.href = 'index.html'; }
+function sair() { sessionStorage.clear(); window.location.href = 'login.html'; }
 
 // INIT
 document.getElementById('btn-add').style.display = 'none';
