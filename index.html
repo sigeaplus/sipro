@@ -103,7 +103,8 @@
   </div>
 </div>
 <script>
-  const SB_URL='https://biocjxggjjfeqmpuysik.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpb2NqeGdnampmZXFtcHV5c2lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODUwOTQsImV4cCI6MjA4OTc2MTA5NH0.3bL3dKqiWGoHROE6vSzf-7Orp0GLcLpn4mHtUSwC0dU',DASH='secretaria_dashboard.html';
+  const SB_URL='https://biocjxggjjfeqmpuysik.supabase.co',SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpb2NqeGdnampmZXFtcHV5c2lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODUwOTQsImV4cCI6MjA4OTc2MTA5NH0.3bL3dKqiWGoHROE6vSzf-7Orp0GLcLpn4mHtUSwC0dU';
+  function getDash(role){console.log('[SIPRO] role recebido:',role);if(!role)return 'secretaria_dashboard.html';const r=role.toLowerCase().trim();if(r==='admin'||r==='administrador'||r==='administrator')return 'admin_dashboard.html';return 'secretaria_dashboard.html';}
   const GOOGLE_CLIENT_ID='809381065699-dm4ie2ob9kioi4nh1ureufkorcc77kck.apps.googleusercontent.com';
   function abrirLogin(){document.getElementById('overlay').classList.add('active');setTimeout(()=>document.getElementById('inp-login').focus(),100)}
   function fecharLogin(){document.getElementById('overlay').classList.remove('active')}
@@ -122,14 +123,14 @@
       if(!p.email){mostrarErro('Não foi possível obter o e-mail do Google.');return;}
       const res=await fetch(`${SB_URL}/rest/v1/users?email=ilike.${encodeURIComponent(p.email)}&select=id,login,role,nome,escola_id,escolas_ids,tipo_secretaria,aluno_id,turma_id`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});
       const data=await res.json();
-      if(Array.isArray(data)&&data.length>0){sessionStorage.setItem('ded_user',JSON.stringify(data[0]));window.location.href=DASH;}
+      if(Array.isArray(data)&&data.length>0){sessionStorage.setItem('ded_user',JSON.stringify(data[0]));window.location.href=getDash(data[0].role);}
       else mostrarErro('Nenhuma conta encontrada para este e-mail do Google.');
     }catch{mostrarErro('Erro de conexão. Tente novamente.')}
   }
   async function fazerLogin(){
     const login=document.getElementById('inp-login').value.trim();const senha=document.getElementById('inp-senha').value;esconderErro();
     if(!login||!senha){mostrarErro('Preencha login e senha.');return}setLoading(true);
-    try{const res=await fetch(`${SB_URL}/rest/v1/users?login=eq.${encodeURIComponent(login)}&senha=eq.${encodeURIComponent(senha)}&select=id,login,role,nome,escola_id,escolas_ids,tipo_secretaria,aluno_id,turma_id`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});const data=await res.json();if(Array.isArray(data)&&data.length>0){sessionStorage.setItem('ded_user',JSON.stringify(data[0]));window.location.href=DASH;}else mostrarErro('Login ou senha incorretos.');}catch{mostrarErro('Erro de conexão. Tente novamente.')}finally{setLoading(false)}
+    try{const res=await fetch(`${SB_URL}/rest/v1/users?login=eq.${encodeURIComponent(login)}&senha=eq.${encodeURIComponent(senha)}&select=id,login,role,nome,escola_id,escolas_ids,tipo_secretaria,aluno_id,turma_id`,{headers:{'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`}});const data=await res.json();if(Array.isArray(data)&&data.length>0){sessionStorage.setItem('ded_user',JSON.stringify(data[0]));window.location.href=getDash(data[0].role);}else mostrarErro('Login ou senha incorretos.');}catch{mostrarErro('Erro de conexão. Tente novamente.')}finally{setLoading(false)}
   }
   document.addEventListener('keydown',e=>{if(e.key==='Enter'&&document.getElementById('overlay').classList.contains('active'))fazerLogin()});
   if('serviceWorker'in navigator)window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));

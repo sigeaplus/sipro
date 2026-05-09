@@ -327,6 +327,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="23 11 17 11"/></svg>
       Aulas
     </button>
+    <button class="nav-item" onclick="navTo('professor-individual', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="12" y1="14" x2="12" y2="22"/><line x1="9" y1="17" x2="15" y2="17"/></svg>
+      Professor Individual
+    </button>
     <button class="nav-item" onclick="window.location.href='planejamento.html'">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Planejamentos
@@ -869,7 +873,27 @@
       </div>
     </div>
 
-    <!-- SECRETÁRIOS -->
+    <!-- PROFESSOR INDIVIDUAL -->
+    <div class="page" id="page-professor-individual">
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Professores Individuais</span>
+          <span class="section-count" id="count-prof-ind">0 registros</span>
+        </div>
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" placeholder="Buscar por nome ou login..." oninput="filtrarProfInd(this.value)"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>Login</th><th>Escola</th><th>Ações</th></tr></thead>
+            <tbody id="tb-prof-ind"><tr class="loading-row"><td colspan="4">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+        <!-- SECRETÁRIOS -->
     <div class="page" id="page-secretarios">
       <div class="section">
         <div class="section-header">
@@ -1043,7 +1067,7 @@ let escolas = [], professores = [], turmas = [], alunos = [], usuarios = [];
 // Verificar sessão
 const session = JSON.parse(sessionStorage.getItem('ded_user') || 'null');
 if (!session || session.role !== 'admin') {
-  window.location.href = 'login.html';
+  window.location.href = 'index.html';
 }
 
 // Preencher nome admin
@@ -1058,6 +1082,7 @@ const pageConfig = {
   usuarios:    { title: 'Usuários',     sub: 'Gerenciar usuários do sistema',  btnLabel: 'Novo usuário' },
   trimestres:   { title: 'Trimestres',    sub: 'Reabrir trimestres fechados',         btnLabel: null },
   aulas:        { title: 'Aulas',         sub: 'Todas as aulas registradas',           btnLabel: null },
+  'professor-individual': { title: 'Professores Individuais', sub: 'Usuários com acesso individual de professor', btnLabel: 'Novo professor individual' },
   secretarios:  { title: 'Secretários',   sub: 'Gerenciar secretários do sistema',     btnLabel: 'Novo secretário' },
 };
 
@@ -1088,6 +1113,7 @@ async function carregarPagina(page) {
   else if (page === 'usuarios') await carregarUsuarios();
   else if (page === 'trimestres') await carregarTrimestres();
   else if (page === 'aulas') await iniciarPaginaAulas();
+  else if (page === 'professor-individual') await carregarProfInd();
   else if (page === 'secretarios') await carregarSecretarios();
 }
 
@@ -1171,6 +1197,16 @@ async function carregarProfessores() {
   } catch(e) { tb.innerHTML = `<tr class="loading-row"><td colspan="5">Erro ao carregar</td></tr>`; }
 }
 
+function renderDisciplinaBadge(disciplina) {
+  if (!disciplina) return '—';
+  const parts = disciplina.split(',').map(s => s.trim()).filter(Boolean);
+  if (parts.length <= 1) {
+    return `<span class="badge" style="background:var(--purple-light);color:var(--purple);">${parts[0] || '—'}</span>`;
+  }
+  return `<span class="badge" style="background:var(--purple-light);color:var(--purple);" title="${parts.join(', ')}">${parts[0]}</span>
+    <span class="badge" style="background:var(--orange);color:#fff;margin-left:4px;" title="${parts.slice(1).join(', ')}">+${parts.length - 1}</span>`;
+}
+
 function renderProfessores(list) {
   const tb = document.getElementById('tb-professores');
   tb.innerHTML = list.length
@@ -1178,7 +1214,7 @@ function renderProfessores(list) {
         <td><strong>${r.nome}</strong></td>
         <td><code style="font-size:12px;background:#F4F2FF;padding:2px 7px;border-radius:4px;">${r.id_login}</code></td>
         <td>${r.escolas?.nome || '—'}</td>
-        <td><span class="badge" style="background:var(--purple-light);color:var(--purple);">${r.disciplina || '—'}</span></td>
+        <td>${renderDisciplinaBadge(r.disciplina)}</td>
         <td><div class="action-btns">
           <button class="btn-action" onclick='editarProfessor(${JSON.stringify(r)})' title="Editar">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
@@ -1401,6 +1437,9 @@ let modalMode = null;
 function abrirModalAdd() {
   currentEditId = null;
   modalMode = currentPage;
+  if (modalMode === 'professor-individual') {
+    modalMode = 'prof-individual';
+  }
   mostrarModal();
 }
 
@@ -1418,6 +1457,7 @@ async function mostrarModal() {
   }
   else if (modalMode === 'alunos') modalAluno();
   else if (modalMode === 'usuarios') modalUsuario();
+  else if (modalMode === 'prof-individual') modalProfIndividual();
   else if (modalMode === 'secretarios') {
     if (!escolas.length) escolas = await api('escolas?select=id,nome&order=nome') || [];
     modalSecretario();
@@ -1446,8 +1486,24 @@ function modalProfessor(data = {}) {
     </div>
     <div class="field-row">
       <div class="field"><label>Escola</label><select id="f-escola"><option value="">Selecione...</option>${opts}</select></div>
-      <div class="field"><label>Disciplina principal</label><input id="f-disciplina" value="${data.disciplina||''}" placeholder="Ex: Matemática"/></div>
+      <div class="field">
+        <label>Disciplina(s)</label>
+        <input id="f-disciplina" value="${data.disciplina||''}" placeholder="Ex: Matemática ou Mat, Port, ..." oninput="previewDisciplinas(this.value)"/>
+        <div id="disciplina-preview" style="margin-top:6px;min-height:20px;"></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Separe por vírgula para múltiplas disciplinas: <code style="background:#F4F2FF;padding:1px 5px;border-radius:4px;">Matemática, Física, Química</code></div>
+      </div>
     </div>`;
+  // Trigger preview on open if already has value
+  if (data.disciplina) setTimeout(() => previewDisciplinas(data.disciplina), 0);
+}
+
+function previewDisciplinas(val) {
+  const el = document.getElementById('disciplina-preview');
+  if (!el) return;
+  const parts = val.split(',').map(s => s.trim()).filter(Boolean);
+  if (parts.length <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = `<span style="font-size:11px;font-weight:600;color:var(--purple);">${parts.length} disciplinas detectadas:</span> ` +
+    parts.map(d => `<span style="display:inline-block;margin:2px 3px;background:var(--purple-light);color:var(--purple);font-size:11px;font-weight:600;padding:2px 9px;border-radius:20px;">${d}</span>`).join('');
 }
 
 function modalTurma(data = {}) {
@@ -1513,6 +1569,23 @@ function editarAluno(r) { currentEditId = r.id; modalMode = 'alunos'; mostrarMod
 function editarUsuario(r) { currentEditId = r.id; modalMode = 'usuarios'; mostrarModal(); modalUsuario(r); }
 
 // SALVAR
+function modalProfIndividual(data = {}) {
+  document.getElementById('modal-title').textContent = data.id ? 'Editar professor individual' : 'Novo professor individual';
+  const optsEscolas = escolas.map(e => `<option value="${e.id}" ${e.id === data.escola_id ? 'selected' : ''}>${e.nome}</option>`).join('');
+  document.getElementById('modal-fields').innerHTML = `
+    <div class="field"><label>Nome completo</label><input id="f-pi-nome" value="${data.nome || ''}" placeholder="Nome completo"/></div>
+    <div class="field-row">
+      <div class="field"><label>Login</label><input id="f-pi-login" value="${data.login || ''}" placeholder="login"/></div>
+      <div class="field"><label>Senha</label><input id="f-pi-senha" type="password" placeholder="${data.id ? 'Deixe em branco para manter' : 'Obrigatório'}"/></div>
+    </div>
+    <div class="field">
+      <label>Escola</label>
+      <select id="f-pi-escola" style="width:100%;padding:10px 34px 10px 13px;background:#F8F6FF;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;color:var(--text);outline:none;">
+        <option value="">Selecione a escola...</option>${optsEscolas}
+      </select>
+    </div>`;
+}
+
 async function salvar() {
   const btn = document.getElementById('btn-save');
   btn.disabled = true;
@@ -1524,7 +1597,25 @@ async function salvar() {
 
   try {
     let body = {};
-    if (mode === 'escolas') {
+    if (mode === 'prof-individual') {
+      const nome     = document.getElementById('f-pi-nome')?.value?.trim();
+      const login    = document.getElementById('f-pi-login')?.value?.trim();
+      const senha    = document.getElementById('f-pi-senha')?.value;
+      const escola_id = document.getElementById('f-pi-escola')?.value || null;
+      if (!nome || !login) throw new Error('Preencha nome e login.');
+      const payload = { nome, login, escola_id, role: 'professor_individual' };
+      if (senha) payload.senha = senha;
+      if (currentEditId) {
+        await api(`users?id=eq.${currentEditId}`, { method: 'PATCH', body: JSON.stringify(payload) });
+      } else {
+        if (!senha) throw new Error('Senha obrigatória para novo usuário.');
+        await api('users', { method: 'POST', body: JSON.stringify(payload) });
+      }
+      fecharModalBtn();
+      await carregarProfInd();
+      btn.disabled = false;
+      return;
+    } else if (mode === 'escolas') {
       body = { codigo_escola: document.getElementById('f-codigo').value.trim(), nome: document.getElementById('f-nome').value.trim(), sre: document.getElementById('f-sre').value.trim(), tipo: document.getElementById('f-tipo').value };
       if (!body.codigo_escola || !body.nome || !body.sre) throw new Error('Preencha todos os campos obrigatórios.');
     } else if (mode === 'professores') {
@@ -2653,7 +2744,75 @@ async function excluirSecretario(id) {
   } catch(e) { alert('Erro: ' + e.message); }
 }
 
-function sair() { sessionStorage.clear(); window.location.href = 'login.html'; }
+
+// ══════════════════════════════════════════════
+// PROFESSOR INDIVIDUAL
+// ══════════════════════════════════════════════
+let _profIndCache = [];
+
+async function carregarProfInd() {
+  const tb = document.getElementById('tb-prof-ind');
+  tb.innerHTML = '<tr class="loading-row"><td colspan="4">Carregando...</td></tr>';
+  try {
+    if (!escolas.length) escolas = await api('escolas?select=id,nome&order=nome') || [];
+    _profIndCache = await api('users?role=eq.professor_individual&select=*&order=nome') || [];
+    document.getElementById('count-prof-ind').textContent = `${_profIndCache.length} registro${_profIndCache.length !== 1 ? 's' : ''}`;
+    renderProfInd(_profIndCache);
+  } catch(e) {
+    tb.innerHTML = `<tr><td colspan="4" style="color:#E24B4A;padding:16px;">Erro: ${e.message}</td></tr>`;
+  }
+}
+
+function renderProfInd(lista) {
+  const tb = document.getElementById('tb-prof-ind');
+  if (!lista.length) {
+    tb.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:32px;color:var(--text-muted);">Nenhum professor individual cadastrado.</td></tr>';
+    return;
+  }
+  tb.innerHTML = lista.map(u => {
+    const escolaNome = escolas.find(e => e.id === u.escola_id)?.nome || '—';
+    return `<tr>
+      <td style="font-weight:600;">${u.nome || '—'}</td>
+      <td><code style="font-size:12px;background:#F4F2FF;padding:2px 7px;border-radius:4px;">${u.login}</code></td>
+      <td>${escolaNome}</td>
+      <td><div class="action-btns">
+        <button class="btn-action" onclick='editarProfInd(${JSON.stringify(u).replace(/"/g,"&quot;")})' title="Editar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn-action danger" onclick="excluirProfInd('${u.id}')" title="Excluir">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrarProfInd(q) {
+  const f = q.toLowerCase();
+  renderProfInd(_profIndCache.filter(u =>
+    (u.nome || '').toLowerCase().includes(f) || u.login.toLowerCase().includes(f)
+  ));
+}
+
+async function editarProfInd(data) {
+  currentEditId = data.id;
+  modalMode = 'prof-individual';
+  if (!escolas.length) escolas = await api('escolas?select=id,nome&order=nome') || [];
+  document.getElementById('modal-alert').style.display = 'none';
+  document.getElementById('modal-overlay').classList.add('open');
+  modalProfIndividual(data);
+}
+
+async function excluirProfInd(id) {
+  if (!confirm('Excluir este professor individual?')) return;
+  try {
+    await api(`users?id=eq.${id}`, { method: 'DELETE' });
+    await carregarProfInd();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
+
+
+function sair() { sessionStorage.clear(); window.location.href = 'index.html'; }
 
 // INIT
 document.getElementById('btn-add').style.display = 'none';
