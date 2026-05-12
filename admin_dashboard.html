@@ -319,6 +319,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
       Secretários
     </button>
+    <button class="nav-item" onclick="navTo('diretores', this)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/><circle cx="12" cy="10" r="3"/></svg>
+      Diretores / Especialistas
+    </button>
     <button class="nav-item" onclick="navTo('trimestres', this)">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
       Trimestres
@@ -913,6 +917,26 @@
       </div>
     </div>
 
+    <!-- DIRETORES / ESPECIALISTAS -->
+    <div class="page" id="page-diretores">
+      <div class="section">
+        <div class="section-header">
+          <span class="section-title">Diretores e Especialistas</span>
+          <span class="section-count" id="count-diretores">0 registros</span>
+        </div>
+        <div class="search-bar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-input" placeholder="Buscar por nome ou login..." oninput="filtrarDiretores(this.value)"/>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Nome</th><th>Login</th><th>Perfil</th><th>Escola</th><th>Ações</th></tr></thead>
+            <tbody id="tb-diretores"><tr class="loading-row"><td colspan="5">Carregando...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
   </div>
 </main>
 
@@ -1084,6 +1108,7 @@ const pageConfig = {
   aulas:        { title: 'Aulas',         sub: 'Todas as aulas registradas',           btnLabel: null },
   'professor-individual': { title: 'Professores Individuais', sub: 'Usuários com acesso individual de professor', btnLabel: 'Novo professor individual' },
   secretarios:  { title: 'Secretários',   sub: 'Gerenciar secretários do sistema',     btnLabel: 'Novo secretário' },
+  diretores:    { title: 'Diretores / Especialistas', sub: 'Gerenciar diretores e especialistas escolares', btnLabel: 'Novo diretor / especialista' },
 };
 
 function navTo(page, el) {
@@ -1115,6 +1140,7 @@ async function carregarPagina(page) {
   else if (page === 'aulas') await iniciarPaginaAulas();
   else if (page === 'professor-individual') await carregarProfInd();
   else if (page === 'secretarios') await carregarSecretarios();
+  else if (page === 'diretores') await carregarDiretores();
 }
 
 async function carregarDashboard() {
@@ -1462,6 +1488,10 @@ async function mostrarModal() {
     if (!escolas.length) escolas = await api('escolas?select=id,nome&order=nome') || [];
     modalSecretario();
   }
+  else if (modalMode === 'diretores') {
+    if (!escolas.length) escolas = await api('escolas?select=id,nome&order=nome') || [];
+    modalDiretor();
+  }
 }
 
 function modalEscola(data = {}) {
@@ -1714,7 +1744,6 @@ async function salvar() {
       if (!descricao) throw new Error('Preencha a descrição.');
       body = { escola_id: escolaAtiva.id, data: dataIni, data_fim: dataFim, tipo, descricao };
     } else if (mode === 'secretarios') {
-      const nome  = document.getElementById('f-nome').value.trim();
       const login = document.getElementById('f-login-sec').value.trim();
       const senha = document.getElementById('f-senha-sec').value;
       const tipo  = document.getElementById('f-tipo-sec').value;
@@ -1738,6 +1767,17 @@ async function salvar() {
 
       body = { nome, login, role: 'secretaria', tipo_secretaria: tipo, escola_id, escolas_ids };
       if (senha) body.senha = senha;
+    } else if (mode === 'diretores') {
+      const nome  = document.getElementById('f-nome-dir').value.trim();
+      const login = document.getElementById('f-login-dir').value.trim();
+      const senha = document.getElementById('f-senha-dir').value;
+      const perfil = document.getElementById('f-perfil-dir').value;
+      const escola_id = document.getElementById('f-escola-dir').value || null;
+      if (!nome || !login) throw new Error('Preencha nome e login.');
+      if (!currentEditId && !senha) throw new Error('Informe a senha para novo usuário.');
+      if (!escola_id) throw new Error('Selecione a escola vinculada.');
+      body = { nome, login, role: perfil, escola_id };
+      if (senha) body.senha = senha;
     } else if (mode === 'usuarios') {
       body = { nome: document.getElementById('f-nome').value.trim(), login: document.getElementById('f-login').value.trim(), role: document.getElementById('f-role').value };
       const senha = document.getElementById('f-senha').value;
@@ -1746,10 +1786,10 @@ async function salvar() {
     }
 
     if (currentEditId) {
-      const tabela = mode === 'calendario' ? 'calendario_escolar' : mode === 'secretarios' ? 'users' : mode;
+      const tabela = mode === 'calendario' ? 'calendario_escolar' : (mode === 'secretarios' || mode === 'diretores') ? 'users' : mode;
       await api(`${tabela}?id=eq.${currentEditId}`, { method: 'PATCH', body: JSON.stringify(body) });
     } else {
-      const tabela = mode === 'calendario' ? 'calendario_escolar' : mode === 'secretarios' ? 'users' : mode;
+      const tabela = mode === 'calendario' ? 'calendario_escolar' : (mode === 'secretarios' || mode === 'diretores') ? 'users' : mode;
       const res = await api(tabela, { method: 'POST', body: JSON.stringify(body) });
       // Importar alunos em massa (turmas)
       if (mode === 'turmas' && res && res[0]) {
@@ -1771,6 +1811,8 @@ async function salvar() {
       await carregarCalendario();
     } else if (mode === 'secretarios') {
       await carregarSecretarios();
+    } else if (mode === 'diretores') {
+      await carregarDiretores();
     } else {
       await carregarPagina(currentPage);
     }
@@ -2811,6 +2853,104 @@ async function excluirProfInd(id) {
   } catch(e) { alert('Erro: ' + e.message); }
 }
 
+
+// ══════════════════════════════════════════════
+// DIRETORES / ESPECIALISTAS
+// ══════════════════════════════════════════════
+let _diretoresCache = [];
+
+async function carregarDiretores() {
+  const tb = document.getElementById('tb-diretores');
+  tb.innerHTML = '<tr class="loading-row"><td colspan="5">Carregando...</td></tr>';
+  try {
+    if (!escolas.length) escolas = await api('escolas?select=id,nome&order=nome') || [];
+    _diretoresCache = await api('users?role=in.(diretor,especialista)&select=*&order=nome') || [];
+    document.getElementById('count-diretores').textContent = `${_diretoresCache.length} registro${_diretoresCache.length !== 1 ? 's' : ''}`;
+    renderDiretores(_diretoresCache);
+  } catch(e) {
+    tb.innerHTML = `<tr><td colspan="5" style="color:#E24B4A;padding:16px;">Erro: ${e.message}</td></tr>`;
+  }
+}
+
+function renderDiretores(lista) {
+  const tb = document.getElementById('tb-diretores');
+  if (!lista.length) {
+    tb.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-muted);">Nenhum diretor ou especialista cadastrado.</td></tr>';
+    return;
+  }
+  const PERFIL_CFG = {
+    diretor:     { label: 'Diretor',     bg: '#EDE8FF', color: 'var(--purple)' },
+    especialista: { label: 'Especialista', bg: '#E0F7F4', color: '#0F766E' },
+  };
+  tb.innerHTML = lista.map(u => {
+    const escolaNome = escolas.find(e => e.id === u.escola_id)?.nome || '—';
+    const cfg = PERFIL_CFG[u.role] || { label: u.role, bg: '#F3F4F6', color: '#6B7280' };
+    return `<tr>
+      <td style="font-weight:600;">${u.nome || '—'}</td>
+      <td><code style="font-size:12px;background:#F4F2FF;padding:2px 7px;border-radius:4px;">${u.login}</code></td>
+      <td><span style="background:${cfg.bg};color:${cfg.color};font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;">${cfg.label}</span></td>
+      <td>${escolaNome}</td>
+      <td><div class="action-btns">
+        <button class="btn-action" onclick='editarDiretor(${JSON.stringify(u).replace(/"/g,"&quot;")})' title="Editar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        </button>
+        <button class="btn-action danger" onclick="excluirDiretor('${u.id}')" title="Excluir">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+        </button>
+      </div></td>
+    </tr>`;
+  }).join('');
+}
+
+function filtrarDiretores(q) {
+  const f = q.toLowerCase();
+  renderDiretores(_diretoresCache.filter(u =>
+    (u.nome || '').toLowerCase().includes(f) ||
+    u.login.toLowerCase().includes(f) ||
+    (u.role || '').toLowerCase().includes(f)
+  ));
+}
+
+function modalDiretor(data = {}) {
+  document.getElementById('modal-title').textContent = data.id ? 'Editar diretor / especialista' : 'Novo diretor / especialista';
+  const optsEscolas = escolas.map(e => `<option value="${e.id}" ${e.id === data.escola_id ? 'selected' : ''}>${e.nome}</option>`).join('');
+  document.getElementById('modal-fields').innerHTML = `
+    <div class="field"><label>Nome completo</label><input id="f-nome-dir" value="${data.nome || ''}" placeholder="Nome completo"/></div>
+    <div class="field-row">
+      <div class="field"><label>Login</label><input id="f-login-dir" value="${data.login || ''}" placeholder="login"/></div>
+      <div class="field"><label>Senha</label><input id="f-senha-dir" type="password" placeholder="${data.id ? 'Deixe em branco para manter' : 'Obrigatório'}"/></div>
+    </div>
+    <div class="field">
+      <label>Perfil</label>
+      <select id="f-perfil-dir" style="width:100%;padding:10px 13px;background:#F8F6FF;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;color:var(--text);outline:none;">
+        <option value="diretor" ${(data.role === 'diretor' || !data.role) ? 'selected' : ''}>🏛️ Diretor — gerencia escola, professores e turmas</option>
+        <option value="especialista" ${data.role === 'especialista' ? 'selected' : ''}>🎓 Especialista — suporte pedagógico e relatórios</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Escola vinculada</label>
+      <select id="f-escola-dir" style="width:100%;padding:10px 13px;background:#F8F6FF;border:1.5px solid var(--border);border-radius:8px;font-family:'Sora',sans-serif;font-size:13px;color:var(--text);outline:none;">
+        <option value="">Selecione a escola...</option>${optsEscolas}
+      </select>
+    </div>`;
+}
+
+async function editarDiretor(data) {
+  currentEditId = data.id;
+  modalMode = 'diretores';
+  document.getElementById('modal-alert').style.display = 'none';
+  document.getElementById('modal-overlay').classList.add('open');
+  if (!escolas.length) escolas = await api('escolas?select=id,nome&order=nome') || [];
+  modalDiretor(data);
+}
+
+async function excluirDiretor(id) {
+  if (!confirm('Excluir este diretor / especialista?')) return;
+  try {
+    await api(`users?id=eq.${id}`, { method: 'DELETE' });
+    await carregarDiretores();
+  } catch(e) { alert('Erro: ' + e.message); }
+}
 
 function sair() { sessionStorage.clear(); window.location.href = 'index.html'; }
 
