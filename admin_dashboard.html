@@ -247,6 +247,138 @@
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+    /* ===================== WIZARD DE ESCOLA (tela cheia) ===================== */
+    .escola-wizard { display: none; }
+    .escola-wizard.open {
+      display: flex; flex-direction: column;
+      position: fixed; inset: 0; z-index: 400;
+      background: var(--bg);
+    }
+
+    .ew-topbar {
+      background: var(--white); border-bottom: 1px solid var(--border);
+      padding: 14px 24px; display: flex; align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px; flex-shrink: 0;
+    }
+    .ew-topbar-left { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .ew-close { width: 34px; height: 34px; border-radius: 8px; border: 1px solid var(--border); background: none; cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-muted); flex-shrink: 0; transition: all 0.15s; }
+    .ew-close:hover { background: var(--bg); }
+    .ew-title-wrap { min-width: 0; }
+    .ew-title { font-size: 16px; font-weight: 700; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ew-sub { font-size: 12px; color: var(--text-muted); }
+    .ew-actions { display: flex; gap: 8px; align-items: center; flex-shrink: 0; }
+    .ew-completude-pill { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--purple); background: var(--purple-light); padding: 6px 12px; border-radius: 20px; }
+
+    .ew-body { flex: 1; overflow: hidden; display: flex; min-height: 0; }
+
+    /* Trilha de etapas (desktop: lateral / mobile: topo horizontal scroll) */
+    .ew-steps {
+      width: 240px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border);
+      overflow-y: auto; padding: 14px 10px;
+    }
+    .ew-step {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px; border-radius: 10px; cursor: pointer;
+      font-size: 13px; font-weight: 500; color: var(--text-muted);
+      margin-bottom: 3px; transition: all 0.15s; border: none; background: none; width: 100%; text-align: left;
+    }
+    .ew-step:hover { background: var(--bg); color: var(--text); }
+    .ew-step.active { background: var(--purple-light); color: var(--purple); font-weight: 700; }
+    .ew-step-num {
+      width: 22px; height: 22px; border-radius: 50%; flex-shrink: 0;
+      background: var(--border); color: var(--text-muted);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 700; font-family: 'Space Mono', monospace;
+    }
+    .ew-step.active .ew-step-num { background: var(--purple); color: #fff; }
+    .ew-step.done .ew-step-num { background: var(--success); color: #fff; }
+    .ew-step-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ew-step-badge { font-size: 10px; font-weight: 700; padding: 1px 6px; border-radius: 10px; flex-shrink: 0; }
+    .ew-step-badge.req { background: #FFF4F4; color: #C0392B; }
+    .ew-step-badge.opt { background: #F0FDF4; color: #15803D; }
+
+    .ew-content { flex: 1; overflow-y: auto; padding: 28px 32px 100px; }
+    .ew-content-inner { max-width: 720px; margin: 0 auto; }
+
+    .ew-section-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .ew-section-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 22px; }
+
+    .ew-group { margin-bottom: 26px; }
+    .ew-group-title { font-size: 12px; font-weight: 700; color: var(--purple); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+
+    .ew-field { margin-bottom: 16px; }
+    .ew-field label { display: block; font-size: 12px; font-weight: 600; color: var(--purple); text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 7px; }
+    .ew-field label .req-star { color: var(--danger); margin-left: 2px; }
+    .ew-field input, .ew-field select, .ew-field textarea {
+      width: 100%; padding: 11px 13px;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 8px; font-family: 'Sora', sans-serif;
+      font-size: 13px; color: var(--text); outline: none;
+      transition: border-color 0.2s;
+    }
+    .ew-field input:focus, .ew-field select:focus, .ew-field textarea:focus { border-color: var(--purple); }
+    .ew-field textarea { resize: vertical; min-height: 70px; }
+    .ew-field.invalid input, .ew-field.invalid select { border-color: var(--danger); background: #FFF8F8; }
+    .ew-field-hint { font-size: 11px; color: var(--text-muted); margin-top: 5px; }
+
+    .ew-row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .ew-row3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+
+    /* Grupo de opções (radio/checkbox estilo chip) */
+    .ew-options { display: flex; flex-wrap: wrap; gap: 8px; }
+    .ew-opt {
+      padding: 9px 16px; border-radius: 20px; border: 1.5px solid var(--border);
+      background: var(--white); font-size: 13px; font-weight: 500; color: var(--text);
+      cursor: pointer; transition: all 0.15s; user-select: none;
+    }
+    .ew-opt:hover { border-color: var(--purple); }
+    .ew-opt.selected { background: var(--purple); border-color: var(--purple); color: #fff; }
+    .ew-opt.selected.multi { background: var(--purple-light); border-color: var(--purple); color: var(--purple); }
+
+    /* Grid de checkboxes para listas grandes (dependências, equipamentos etc) */
+    .ew-check-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ew-check-item {
+      display: flex; align-items: center; gap: 9px; padding: 9px 12px;
+      background: var(--white); border: 1.5px solid var(--border); border-radius: 8px;
+      font-size: 13px; color: var(--text); cursor: pointer; transition: all 0.15s;
+    }
+    .ew-check-item:hover { border-color: var(--purple); }
+    .ew-check-item input { width: 16px; height: 16px; accent-color: var(--purple); flex-shrink: 0; cursor: pointer; }
+    .ew-check-item.checked { background: var(--purple-light); border-color: var(--purple); }
+
+    .ew-cond { display: none; padding: 16px; background: var(--purple-light); border-radius: 10px; margin-top: 10px; }
+    .ew-cond.show { display: block; }
+
+    .ew-footer {
+      position: sticky; bottom: 0; background: var(--white); border-top: 1px solid var(--border);
+      padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+    }
+    .ew-footer-progress { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--text-muted); }
+    .ew-progress-bar { width: 120px; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+    .ew-progress-fill { height: 100%; background: var(--purple); transition: width 0.3s; }
+    .ew-footer-btns { display: flex; gap: 10px; }
+    .ew-btn-nav { padding: 10px 18px; border-radius: 8px; border: 1px solid var(--border); background: none; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); cursor: pointer; transition: all 0.15s; }
+    .ew-btn-nav:hover { background: var(--bg); }
+    .ew-btn-nav:disabled { opacity: 0.4; cursor: not-allowed; }
+    .ew-btn-save { padding: 10px 22px; border-radius: 8px; border: none; background: var(--purple); color: #fff; font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; transition: opacity 0.15s; }
+    .ew-btn-save:hover { opacity: 0.88; }
+    .ew-btn-save:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    @media (max-width: 860px) {
+      .ew-body { flex-direction: column; }
+      .ew-steps { width: 100%; display: flex; overflow-x: auto; padding: 10px; border-right: none; border-bottom: 1px solid var(--border); gap: 4px; }
+      .ew-step { flex-shrink: 0; width: auto; white-space: nowrap; }
+      .ew-step-label { max-width: 120px; }
+      .ew-content { padding: 18px 16px 90px; }
+      .ew-row2, .ew-row3 { grid-template-columns: 1fr; }
+      .ew-check-grid { grid-template-columns: 1fr; }
+      .ew-footer { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+      .ew-footer-progress { order: 3; width: 100%; justify-content: center; }
+      .ew-progress-bar { flex: 1; }
+      .ew-topbar { padding: 12px 14px; }
+      .ew-completude-pill { display: none; }
+    }
+
     /* PÁGINA ATIVA */
     .page { display: none; }
     .page.active { display: block; }
@@ -938,6 +1070,49 @@
     </div>
 
   </div>
+
+<!-- ===================== WIZARD DE CADASTRO/EDIÇÃO DE ESCOLA ===================== -->
+<div class="escola-wizard" id="escola-wizard">
+  <div class="ew-topbar">
+    <div class="ew-topbar-left">
+      <button class="ew-close" onclick="fecharWizardEscola()" title="Fechar">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="ew-title-wrap">
+        <div class="ew-title" id="ew-title">Nova escola</div>
+        <div class="ew-sub" id="ew-sub">Preencha os dados conforme o Censo Escolar 2026</div>
+      </div>
+    </div>
+    <div class="ew-actions">
+      <div class="ew-completude-pill" id="ew-completude-pill">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        <span id="ew-completude-txt">0% completo</span>
+      </div>
+    </div>
+  </div>
+
+  <div id="ew-alert" class="alert" style="display:none;margin:12px 32px 0;"></div>
+
+  <div class="ew-body">
+    <nav class="ew-steps" id="ew-steps"></nav>
+    <div class="ew-content">
+      <div class="ew-content-inner" id="ew-content-inner"></div>
+    </div>
+  </div>
+
+  <div class="ew-footer">
+    <div class="ew-footer-progress">
+      <div class="ew-progress-bar"><div class="ew-progress-fill" id="ew-progress-fill" style="width:0%"></div></div>
+      <span id="ew-progress-txt">0 de 0 obrigatórios</span>
+    </div>
+    <div class="ew-footer-btns">
+      <button class="ew-btn-nav" id="ew-btn-prev" onclick="ewIrEtapa(ewEtapaAtual-1)">Voltar</button>
+      <button class="ew-btn-nav" id="ew-btn-next" onclick="ewIrEtapa(ewEtapaAtual+1)">Avançar</button>
+      <button class="ew-btn-save" id="ew-btn-salvar" onclick="salvarEscolaWizard()">Salvar escola</button>
+    </div>
+  </div>
+</div>
+
 </main>
 
 <!-- MODAL HORÁRIO -->
@@ -1466,14 +1641,17 @@ function abrirModalAdd() {
   if (modalMode === 'professor-individual') {
     modalMode = 'prof-individual';
   }
+  if (modalMode === 'escolas') {
+    abrirWizardEscola({});
+    return;
+  }
   mostrarModal();
 }
 
 async function mostrarModal() {
   document.getElementById('modal-alert').style.display = 'none';
   document.getElementById('modal-overlay').classList.add('open');
-  if (modalMode === 'escolas') modalEscola();
-  else if (modalMode === 'professores') {
+  if (modalMode === 'professores') {
     if (!escolas.length) escolas = await api('escolas?select=id,nome&order=nome') || [];
     modalProfessor();
   }
@@ -1592,7 +1770,7 @@ function modalUsuario(data = {}) {
 }
 
 // EDITAR
-function editarEscola(r) { currentEditId = r.id; modalMode = 'escolas'; mostrarModal(); modalEscola(r); }
+function editarEscola(r) { abrirWizardEscola(r); }
 function editarProfessor(r) { currentEditId = r.id; modalMode = 'professores'; mostrarModal(); modalProfessor(r); }
 function editarTurma(r) { currentEditId = r.id; modalMode = 'turmas'; mostrarModal(); modalTurma(r); }
 function editarAluno(r) { currentEditId = r.id; modalMode = 'alunos'; mostrarModal(); modalAluno(r); }
@@ -3121,6 +3299,597 @@ carregarDashboard();
     turmaAssociarAtiva = null;
     _tdList = [];
   }
+</script>
+
+<script>
+// =====================================================================
+// WIZARD DE CADASTRO/EDIÇÃO DE ESCOLA — Censo Escolar 2026
+// =====================================================================
+
+const EW_UFS = ['AC','AL','AP','AM','BA','CE','DF','ES','GO','MA','MT','MS','MG','PA','PB','PR','PE','PI','RJ','RN','RS','RO','RR','SC','SP','SE','TO'];
+
+function ewSlug(s) {
+  return s.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '');
+}
+// Gera campos checkbox (boolean) a partir de uma lista de rótulos
+function ewChecklist(labels) {
+  return labels.map(l => ({ id: ewSlug(l), label: l, type: 'checkbox', required: false }));
+}
+// Gera campos numéricos (quantidade) a partir de uma lista de rótulos
+function ewNumlist(labels) {
+  return labels.map(l => ({ id: ewSlug(l), label: l, type: 'number', required: false }));
+}
+
+// ---------- SCHEMA ----------
+const EW_SCHEMA = [
+  {
+    id: 'identificacao', label: 'Identificação', badge: 'req',
+    desc: 'Dados básicos de identificação e localização da escola.',
+    groups: [
+      { title: 'Identificação', fields: [
+        { id: 'nome', label: 'Nome da escola', type: 'text', required: true, placeholder: 'Ex: EE Padre Menezes' },
+        { id: 'codigo_escola', label: 'Código (interno, 6 dígitos)', type: 'text', required: true, maxlength: 6, placeholder: '000000' },
+        { id: 'codigo_inep', label: 'Código INEP', type: 'text', required: false, maxlength: 8, placeholder: '00000000' },
+        { id: 'situacao_funcionamento', label: 'Situação de funcionamento', type: 'radio', required: true, options: ['Em atividade','Paralisada','Extinta'] },
+        { id: 'tipo', label: 'Dependência administrativa', type: 'radio', required: true, options: ['Federal','Estadual','Municipal','Privada'] },
+        { id: 'sre', label: 'Órgão regional de ensino (SRE)', type: 'text', required: true, placeholder: 'Ex: SRE Metropolitana C' },
+      ]},
+      { title: 'Localização', fields: [
+        { id: 'zona', label: 'Localização / Zona', type: 'radio', required: true, options: ['Urbana','Rural'] },
+        { id: 'municipio', label: 'Município', type: 'text', required: true },
+        { id: 'uf', label: 'UF', type: 'select', required: true, options: EW_UFS },
+        { id: 'cep', label: 'CEP', type: 'text', required: true, placeholder: '00000-000' },
+        { id: 'endereco', label: 'Endereço', type: 'text', required: true },
+        { id: 'numero', label: 'Número', type: 'text', required: true },
+        { id: 'complemento', label: 'Complemento', type: 'text', required: false },
+        { id: 'bairro', label: 'Bairro', type: 'text', required: true },
+      ]},
+      { title: 'Contato', fields: [
+        { id: 'ddd', label: 'DDD', type: 'text', required: false, maxlength: 3, placeholder: '31' },
+        { id: 'telefone', label: 'Telefone principal', type: 'tel', required: true, placeholder: '00000-0000' },
+        { id: 'telefone2', label: 'Telefone secundário', type: 'tel', required: false },
+        { id: 'email', label: 'E-mail', type: 'email', required: false },
+        { id: 'site', label: 'Site / redes sociais', type: 'text', required: false },
+      ]}
+    ]
+  },
+  {
+    id: 'regulamentacao', label: 'Regulamentação', badge: 'req',
+    desc: 'Situação da escola perante os conselhos e órgãos de educação.',
+    groups: [
+      { title: 'Regulamentação', fields: [
+        { id: 'regulamentacao', label: 'Possui regulamentação/autorização?', type: 'radio', required: true, options: ['Sim','Em tramitação','Não'] },
+        { id: 'esfera_regulamentacao', label: 'Esfera administrativa responsável', type: 'radio', required: false,
+          options: ['Federal','Estadual','Municipal'],
+          condition: g => g('regulamentacao') === 'Sim' || g('regulamentacao') === 'Em tramitação' },
+      ]},
+      { title: 'Vinculação institucional', fields: [
+        { id: 'orgao_vinculado', label: 'Órgão ao qual a escola pública está vinculada', type: 'select', required: false,
+          options: ['Secretaria de Educação/Ministério da Educação','Secretaria da Saúde/Ministério da Saúde','Secretaria de Segurança Pública/Forças Armadas/Militar','Outro órgão da administração pública'],
+          condition: g => g('tipo') && g('tipo') !== 'Privada' },
+        { id: 'entidade_superior', label: 'Entidade superior da escola', type: 'radio', required: false,
+          options: ['Secretaria estadual','Secretaria Municipal'],
+          condition: g => g('tipo') && g('tipo') !== 'Privada' },
+      ]},
+      { title: 'Convênio', fields: [
+        { id: 'possui_convenio', label: 'A escola possui parceria ou convênio com a Administração Pública e/ou outras instituições?', type: 'radio', required: false, options: ['Sim','Não'] },
+        { id: 'poder_publico_convenio', label: 'Poder público responsável pela parceria/convênio', type: 'radio', required: false,
+          options: ['Estadual','Municipal','Privada'], condition: g => g('possui_convenio') === 'Sim' },
+        { id: 'tipo_convenio', label: 'Forma de contratação da parceria/convênio', type: 'select', required: false,
+          options: ['Termo de colaboração','Acordo de cooperação','Termo de cooperação técnica e financeira','Contrato de prestação de serviço','Contrato de consórcio público/Convênio de cooperação','Termo de fomento'],
+          condition: g => g('possui_convenio') === 'Sim' },
+      ]}
+    ]
+  },
+  {
+    id: 'privada', label: 'Escola Privada', badge: 'req',
+    desc: 'Dados exigidos apenas para escolas de dependência privada.',
+    condition: g => g('tipo') === 'Privada',
+    groups: [
+      { title: 'Dados da escola privada', fields: [
+        { id: 'categoria_privada', label: 'Categoria da escola privada', type: 'radio', required: true, options: ['Particular','Comunitária','Confessional','Filantrópica'] },
+        { id: 'mantenedora', label: 'Mantenedora da escola privada', type: 'text', required: true },
+        { id: 'cnpj_mantenedora', label: 'CNPJ da mantenedora principal', type: 'text', required: true, placeholder: '00.000.000/0000-00' },
+        { id: 'cnpj_escola', label: 'CNPJ da escola privada', type: 'text', required: true, placeholder: '00.000.000/0000-00' },
+      ]}
+    ]
+  },
+  {
+    id: 'estrutura', label: 'Estrutura Básica', badge: 'req',
+    desc: 'Ocupação do prédio e local de funcionamento.',
+    groups: [
+      { title: 'Estrutura e ocupação', fields: [
+        { id: 'local_funcionamento', label: 'Local de funcionamento da escola', type: 'select', required: true,
+          options: ['Prédio escolar','Galpão/rancho/paiol/barracão','Sala(s) em outra escola','Unidade de atendimento socioeducativo','Unidade prisional','Outros'] },
+        { id: 'forma_ocupacao_predio', label: 'Forma de ocupação do prédio escolar', type: 'radio', required: true, options: ['Próprio','Alugado','Cedido'] },
+      ]}
+    ]
+  },
+  {
+    id: 'infraestrutura', label: 'Infraestrutura Básica', badge: 'req',
+    desc: 'Serviços básicos de água, energia, esgoto e lixo.',
+    groups: [
+      { title: 'Infraestrutura de serviços básicos', fields: [
+        { id: 'abastecimento_agua', label: 'Abastecimento de água', type: 'select', required: true,
+          options: ['Rede pública','Poço artesiano','Cacimba/cisterna/poço','Fonte/rio/igarapé/riacho/córrego','Carro-pipa','Não há abastecimento de água'] },
+        { id: 'fonte_energia', label: 'Fonte de energia elétrica', type: 'select', required: true,
+          options: ['Rede pública','Gerador movido a combustível fóssil','Fontes de energia renováveis ou alternativas','Não há energia elétrica'] },
+        { id: 'esgotamento_sanitario', label: 'Esgotamento sanitário', type: 'select', required: true,
+          options: ['Rede pública','Fossa séptica','Fossa rudimentar/comum','Não há esgotamento sanitário'] },
+        { id: 'destinacao_lixo', label: 'Destinação do lixo', type: 'select', required: true,
+          options: ['Serviço de coleta','Queima','Enterra','Descarta em outra área','Leva a uma destinação final licenciada pelo poder público'] },
+      ]}
+    ]
+  },
+  {
+    id: 'alimentacao', label: 'Alimentação Escolar', badge: 'req',
+    desc: 'Oferta de alimentação escolar para os alunos.',
+    groups: [
+      { title: 'Alimentação escolar', fields: [
+        { id: 'oferece_alimentacao', label: 'Oferece alimentação escolar?', type: 'radio', required: true, options: ['Sim','Não'] },
+      ]}
+    ]
+  },
+  {
+    id: 'indigena', label: 'Escola Indígena', badge: 'opt',
+    desc: 'Preencher apenas se a escola for indígena.',
+    groups: [
+      { title: 'Escola indígena', fields: [
+        { id: 'escola_indigena', label: 'Escola indígena?', type: 'radio', required: false, options: ['Sim','Não'] },
+        { id: 'lingua_ensino', label: 'Língua em que o ensino é ministrado', type: 'radio', required: false,
+          options: ['Língua Portuguesa','Língua Indígena'], condition: g => g('escola_indigena') === 'Sim' },
+        { id: 'codigos_lingua_indigena', label: 'Código(s) da língua indígena (até 3, separados por vírgula)', type: 'text', required: false,
+          condition: g => g('escola_indigena') === 'Sim' && g('lingua_ensino') === 'Língua Indígena' },
+      ]}
+    ]
+  },
+  {
+    id: 'vinculacao', label: 'Unidade Vinculada', badge: 'opt',
+    desc: 'Preencher se a escola for unidade vinculada ou ofertante de educação superior.',
+    groups: [
+      { title: 'Vínculo institucional', fields: [
+        { id: 'vinculo_tipo', label: 'Unidade vinculada / ofertante', type: 'radio', required: false,
+          options: ['Sem vínculo com outra instituição','Unidade vinculada à escola de educação básica','Unidade ofertante de educação superior'] },
+        { id: 'codigo_escola_sede', label: 'Código da escola sede', type: 'text', required: false,
+          condition: g => g('vinculo_tipo') === 'Unidade vinculada à escola de educação básica' },
+        { id: 'codigo_ies', label: 'Código da instituição de educação superior (IES)', type: 'text', required: false,
+          condition: g => g('vinculo_tipo') === 'Unidade ofertante de educação superior' },
+      ]}
+    ]
+  },
+  {
+    id: 'localizacao_especial', label: 'Localização Especial', badge: 'opt',
+    desc: 'Áreas de localização diferenciada, se aplicável.',
+    groups: [
+      { title: 'Localização diferenciada', fields: [
+        { id: 'localizacao_diferenciada', label: 'Localização diferenciada da escola', type: 'radio', required: false,
+          options: ['Não está em área de localização diferenciada','Área de assentamento','Terra indígena','Comunidade quilombola','Área onde se localizam povos e comunidades tradicionais'] },
+      ]}
+    ]
+  },
+  {
+    id: 'dependencias', label: 'Dependências Físicas', badge: 'opt',
+    desc: 'Espaços físicos existentes na escola.',
+    groups: [
+      { title: 'Administração, armazenamento e alimentação', jsonBlock: 'dependencias_fisicas', fields: ewChecklist(['Almoxarifado','Cozinha','Despensa','Refeitório','Sala de professores','Sala de diretoria','Sala de secretaria']) },
+      { title: 'Banheiros e vestiários', jsonBlock: 'dependencias_fisicas', fields: ewChecklist(['Banheiro','Banheiro acessível','Banheiro exclusivo para funcionários','Banheiro adequado à educação infantil','Banheiro ou vestiário com chuveiro']) },
+      { title: 'Acomodação e descanso', jsonBlock: 'dependencias_fisicas', fields: ewChecklist(['Dormitório de aluno(a)','Dormitório de professor(a)','Sala de repouso para aluno(a)']) },
+      { title: 'Aprendizagens e atendimentos especializados', jsonBlock: 'dependencias_fisicas', fields: ewChecklist(['Biblioteca','Sala de leitura','Laboratório de informática','Laboratório de ciências','Laboratório de robótica','Sala de recursos multifuncionais (AEE)','Laboratório específico para educação profissional','Sala de oficina da educação profissional']) },
+      { title: 'Esportes, recreação, cultura e meio ambiente', jsonBlock: 'dependencias_fisicas', fields: ewChecklist(['Auditório','Sala de música/coral','Sala/estúdio de dança','Sala multiuso (música, dança e artes)','Sala/ateliê de artes','Estúdio de gravação e edição','Quadra de esportes coberta','Quadra de esportes descoberta','Piscina','Pátio coberto','Pátio descoberto','Parque infantil','Área de vegetação ou gramado','Área de horta, plantio e/ou produção agrícola','Viveiro/criação de animais','Terreirão']) },
+    ]
+  },
+  {
+    id: 'acessibilidade', label: 'Acessibilidade', badge: 'opt',
+    desc: 'Recursos de acessibilidade nas vias de circulação interna.',
+    groups: [
+      { title: 'Recursos de acessibilidade', jsonBlock: 'acessibilidade', fields: ewChecklist(['Rampas','Corrimão e guarda-corpos','Piso tátil','Elevador','Portas com vão livre de no mínimo 80 cm','Sinalização/alarme luminoso','Sinalização sonora','Sinalização tátil','Sinalização visual (piso/paredes)']) },
+    ]
+  },
+  {
+    id: 'quantidades', label: 'Quantidades', badge: 'opt',
+    desc: 'Quantidade de salas e espaços com características específicas.',
+    groups: [
+      { title: 'Quantidades', jsonBlock: 'quantidades', fields: [
+        { id: 'salas_aula', label: 'Quantidade de salas de aula (dentro e fora do prédio)', type: 'number', required: false },
+        { id: 'salas_climatizadas', label: 'Salas de aula climatizadas', type: 'number', required: false },
+        { id: 'salas_acessiveis', label: 'Salas com recursos de acessibilidade', type: 'number', required: false },
+        { id: 'salas_cantinho_leitura', label: 'Salas com Cantinho da Leitura', type: 'number', required: false },
+      ]}
+    ]
+  },
+  {
+    id: 'equipamentos', label: 'Equipamentos', badge: 'opt',
+    desc: 'Equipamentos administrativos, pedagógicos e para uso dos alunos.',
+    groups: [
+      { title: 'Administrativos', jsonBlock: 'equipamentos_admin', fields: ewNumlist(['Computadores','Impressoras','Multifuncionais','Scanner','Copiadora','Antena parabólica']) },
+      { title: 'Pedagógicos', jsonBlock: 'equipamentos_pedagogicos', fields: ewNumlist(['TV','DVD/Blu-ray','Aparelho de som','Projetor multimídia (Data show)','Lousa digital']) },
+      { title: 'Para uso dos alunos', jsonBlock: 'equipamentos_alunos', fields: ewNumlist(['Desktops','Notebooks','Tablets']) },
+    ]
+  },
+  {
+    id: 'internet', label: 'Internet', badge: 'opt',
+    desc: 'Conectividade e uso da internet na escola.',
+    groups: [
+      { title: 'Internet', jsonBlock: 'internet', fields: ewChecklist(['Rede cabeada','Wireless','Banda larga','Uso administrativo','Uso pedagógico','Uso da comunidade']) },
+    ]
+  },
+  {
+    id: 'rh', label: 'Recursos Humanos', badge: 'opt',
+    desc: 'Profissionais que atuam na escola, por função.',
+    groups: [
+      { title: 'Gestão e apoio', jsonBlock: 'recursos_humanos', fields: ewNumlist(['Vice-diretor(a)','Secretário(a)','Auxiliar administrativo','Coordenador(a) pedagógico(a)','Coordenador(a) de turno/disciplinar','Orientador(a) comunitário(a)']) },
+      { title: 'Apoio operacional', jsonBlock: 'recursos_humanos', fields: ewNumlist(['Porteiro(a)','Faxineiro(a)','Zelador(a)','Jardineiro(a)','Segurança/vigilante']) },
+      { title: 'Saúde e assistência', jsonBlock: 'recursos_humanos', fields: ewNumlist(['Psicólogo(a)','Fonoaudiólogo(a)','Nutricionista','Assistente social','Enfermeiro(a)','Bombeiro(a) brigadista','Intérprete de Libras']) },
+      { title: 'Alimentação', jsonBlock: 'recursos_humanos', fields: ewNumlist(['Cozinheiro(a)','Auxiliar de cozinha']) },
+      { title: 'Biblioteca e laboratórios', jsonBlock: 'recursos_humanos', fields: ewNumlist(['Bibliotecário(a)','Técnico(a) de laboratório']) },
+      { title: 'Outros', jsonBlock: 'recursos_humanos', fields: ewNumlist(['Agrônomo(a)/horticultor(a)']) },
+    ]
+  },
+  {
+    id: 'rec_pedagogicos', label: 'Recursos Pedagógicos', badge: 'opt',
+    desc: 'Materiais e instrumentos pedagógicos disponíveis.',
+    groups: [
+      { title: 'Recursos pedagógicos', jsonBlock: 'recursos_pedagogicos', fields: ewChecklist(['Acervo multimídia','Jogos educativos','Instrumentos musicais','Kits de robótica','Materiais para prática desportiva e recreação','Materiais para atividades culturais e artísticas','Brinquedos para educação infantil','Materiais pedagógicos para educação especial','Materiais pedagógicos para educação indígena','Materiais pedagógicos para educação quilombola','Materiais pedagógicos para educação do campo','Materiais para educação emocional e mediação de conflitos','Equipamentos audiovisuais para produção estudantil']) },
+    ]
+  },
+  {
+    id: 'organizacao', label: 'Organização Escolar', badge: 'opt',
+    desc: 'Aspectos de gestão, participação e organização pedagógica.',
+    groups: [
+      { title: 'Organização escolar', jsonBlock: 'organizacao_escolar', fields: ewChecklist(['Desenvolve ações de educação ambiental','PPP atualizado nos últimos 12 meses','Conselho escolar em funcionamento','Grêmio estudantil','Associação de pais e mestres','Compartilha espaços com a comunidade','Usa espaços externos com os alunos','Possui site institucional ou redes sociais']) },
+      { title: 'Critérios de acesso', jsonBlock: 'criterios_acesso', fields: [
+        { id: 'faz_selecao', label: 'Faz exame de seleção para ingresso de alunos?', type: 'radio', required: false, options: ['Sim','Não'] },
+        { id: 'reserva_cotas', label: 'Reserva de vagas por sistema de cotas', type: 'checkbox-group', required: false,
+          options: ['Sem reservas (ampla concorrência)','Oriundo de escola pública','Autodeclarado preto, pardo ou indígena (PPI)','Pessoa com deficiência (PCD)','Condição de renda','Outros grupos'] },
+      ]}
+    ]
+  },
+];
+
+// =====================================================================
+// ESTADO DO WIZARD
+// =====================================================================
+let ewEtapaAtual = 0;
+let ewDados = {};      // valores dos campos "coluna própria"
+let ewCenso = {};       // valores do jsonb censo_2026, por bloco: { dependencias_fisicas: {...}, ... }
+let ewEditId = null;
+
+function ewGetVal(campoId) {
+  return ewDados[campoId];
+}
+
+function ewEtapasVisiveis() {
+  return EW_SCHEMA.filter(etapa => !etapa.condition || etapa.condition(ewGetVal));
+}
+
+// =====================================================================
+// ABERTURA / FECHAMENTO
+// =====================================================================
+function abrirWizardEscola(data = {}) {
+  ewEditId = data.id || null;
+  ewDados = {};
+  ewCenso = {};
+
+  // Popula ewDados com colunas conhecidas do schema (percorre todos os campos "coluna própria")
+  EW_SCHEMA.forEach(etapa => etapa.groups.forEach(grp => {
+    if (grp.jsonBlock) return; // vai pro censo
+    grp.fields.forEach(f => { if (data[f.id] !== undefined) ewDados[f.id] = data[f.id]; });
+  }));
+  // Campos legados já existentes na tabela
+  ['nome','codigo_escola','sre','tipo'].forEach(k => { if (data[k] !== undefined) ewDados[k] = data[k]; });
+  if (data.oferece_alimentacao !== undefined) ewDados.oferece_alimentacao = data.oferece_alimentacao ? 'Sim' : 'Não';
+  if (data.escola_indigena !== undefined) ewDados.escola_indigena = data.escola_indigena ? 'Sim' : 'Não';
+  if (data.possui_convenio !== undefined) ewDados.possui_convenio = data.possui_convenio ? 'Sim' : 'Não';
+
+  ewCenso = data.censo_2026 ? JSON.parse(JSON.stringify(data.censo_2026)) : {};
+
+  ewEtapaAtual = 0;
+  document.getElementById('ew-title').textContent = ewEditId ? `Editar escola${data.nome ? ' — ' + data.nome : ''}` : 'Nova escola';
+  document.getElementById('ew-sub').textContent = 'Cadastro conforme o Censo Escolar 2026';
+  document.getElementById('ew-alert').style.display = 'none';
+  document.getElementById('escola-wizard').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  ewRenderSteps();
+  ewRenderEtapa();
+}
+
+function fecharWizardEscola() {
+  document.getElementById('escola-wizard').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// =====================================================================
+// RENDER — TRILHA DE ETAPAS
+// =====================================================================
+function ewRenderSteps() {
+  const etapas = ewEtapasVisiveis();
+  const nav = document.getElementById('ew-steps');
+  nav.innerHTML = etapas.map((etapa, i) => {
+    const completo = ewEtapaCompleta(etapa);
+    return `<button class="ew-step ${i === ewEtapaAtual ? 'active' : ''} ${completo ? 'done' : ''}" onclick="ewIrEtapa(${i})">
+      <span class="ew-step-num">${completo ? '✓' : i + 1}</span>
+      <span class="ew-step-label">${etapa.label}</span>
+      <span class="ew-step-badge ${etapa.badge}">${etapa.badge === 'req' ? 'obrig.' : 'opc.'}</span>
+    </button>`;
+  }).join('');
+}
+
+// =====================================================================
+// RENDER — CONTEÚDO DA ETAPA
+// =====================================================================
+function ewRenderEtapa() {
+  const etapas = ewEtapasVisiveis();
+  if (ewEtapaAtual < 0) ewEtapaAtual = 0;
+  if (ewEtapaAtual >= etapas.length) ewEtapaAtual = etapas.length - 1;
+  const etapa = etapas[ewEtapaAtual];
+  const el = document.getElementById('ew-content-inner');
+
+  el.innerHTML = `
+    <div class="ew-section-title">${etapa.label}</div>
+    <div class="ew-section-desc">${etapa.desc}</div>
+    ${etapa.groups.map(grp => `
+      <div class="ew-group">
+        <div class="ew-group-title">${grp.title}</div>
+        ${ewRenderGroupFields(grp)}
+      </div>
+    `).join('')}
+  `;
+
+  ewRenderSteps();
+  ewAtualizarFooter();
+}
+
+function ewRenderGroupFields(grp) {
+  // Agrupa checkbox simples em grid; demais campos em layout de linha normal
+  const checkboxFields = grp.fields.filter(f => f.type === 'checkbox');
+  const otherFields = grp.fields.filter(f => f.type !== 'checkbox');
+
+  let html = '';
+  if (otherFields.length) {
+    html += otherFields.map(f => ewRenderField(f, grp.jsonBlock)).join('');
+  }
+  if (checkboxFields.length) {
+    html += `<div class="ew-check-grid">${checkboxFields.map(f => ewRenderCheckboxItem(f, grp.jsonBlock)).join('')}</div>`;
+  }
+  return html;
+}
+
+function ewValOf(field, jsonBlock) {
+  if (jsonBlock) return (ewCenso[jsonBlock] || {})[field.id];
+  return ewDados[field.id];
+}
+
+function ewRenderField(f, jsonBlock) {
+  if (f.condition && !f.condition(ewGetVal)) return '';
+  const val = ewValOf(f, jsonBlock) ?? '';
+  const req = f.required ? '<span class="req-star">*</span>' : '';
+
+  if (f.type === 'radio') {
+    return `<div class="ew-field" data-field="${f.id}">
+      <label>${f.label}${req}</label>
+      <div class="ew-options">
+        ${f.options.map(opt => `<div class="ew-opt ${val === opt ? 'selected' : ''}" onclick="ewSetRadio('${f.id}','${ewEsc(opt)}','${jsonBlock || ''}')">${opt}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+  if (f.type === 'select') {
+    return `<div class="ew-field" data-field="${f.id}">
+      <label>${f.label}${req}</label>
+      <select onchange="ewSetVal('${f.id}', this.value, '${jsonBlock || ''}')">
+        <option value="">Selecione...</option>
+        ${f.options.map(opt => `<option value="${ewEsc(opt)}" ${val === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+      </select>
+    </div>`;
+  }
+  if (f.type === 'checkbox-group') {
+    const arr = Array.isArray(val) ? val : [];
+    return `<div class="ew-field" data-field="${f.id}">
+      <label>${f.label}${req}</label>
+      <div class="ew-options">
+        ${f.options.map(opt => `<div class="ew-opt multi ${arr.includes(opt) ? 'selected multi' : ''}" onclick="ewToggleMulti('${f.id}','${ewEsc(opt)}','${jsonBlock || ''}')">${opt}</div>`).join('')}
+      </div>
+    </div>`;
+  }
+  if (f.type === 'number') {
+    return `<div class="ew-field" data-field="${f.id}">
+      <label>${f.label}${req}</label>
+      <input type="number" min="0" value="${val}" oninput="ewSetVal('${f.id}', this.value, '${jsonBlock || ''}')"/>
+    </div>`;
+  }
+  if (f.type === 'textarea') {
+    return `<div class="ew-field" data-field="${f.id}">
+      <label>${f.label}${req}</label>
+      <textarea oninput="ewSetVal('${f.id}', this.value, '${jsonBlock || ''}')">${val}</textarea>
+    </div>`;
+  }
+  // text, tel, email
+  const inputType = f.type === 'tel' ? 'tel' : (f.type === 'email' ? 'email' : 'text');
+  return `<div class="ew-field" data-field="${f.id}">
+    <label>${f.label}${req}</label>
+    <input type="${inputType}" ${f.maxlength ? `maxlength="${f.maxlength}"` : ''} value="${ewEsc(val)}" placeholder="${f.placeholder || ''}" oninput="ewSetVal('${f.id}', this.value, '${jsonBlock || ''}')"/>
+  </div>`;
+}
+
+function ewRenderCheckboxItem(f, jsonBlock) {
+  const val = !!ewValOf(f, jsonBlock);
+  return `<label class="ew-check-item ${val ? 'checked' : ''}" onclick="ewToggleCheck(event,'${f.id}','${jsonBlock || ''}')">
+    <input type="checkbox" ${val ? 'checked' : ''} onclick="event.stopPropagation()" onchange="ewToggleCheck(event,'${f.id}','${jsonBlock || ''}')"/>
+    <span>${f.label}</span>
+  </label>`;
+}
+
+function ewEsc(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// =====================================================================
+// SETTERS
+// =====================================================================
+function ewSetVal(id, value, jsonBlock) {
+  if (jsonBlock) {
+    if (!ewCenso[jsonBlock]) ewCenso[jsonBlock] = {};
+    ewCenso[jsonBlock][id] = value;
+  } else {
+    ewDados[id] = value;
+  }
+}
+
+function ewSetRadio(id, value, jsonBlock) {
+  ewSetVal(id, value, jsonBlock);
+  ewRenderEtapa(); // re-render pra atualizar campos condicionais e seleção visual
+}
+
+function ewToggleMulti(id, opt, jsonBlock) {
+  const cur = jsonBlock ? ((ewCenso[jsonBlock] || {})[id] || []) : (ewDados[id] || []);
+  const arr = Array.isArray(cur) ? [...cur] : [];
+  const idx = arr.indexOf(opt);
+  if (idx >= 0) arr.splice(idx, 1); else arr.push(opt);
+  ewSetVal(id, arr, jsonBlock);
+  ewRenderEtapa();
+}
+
+function ewToggleCheck(evt, id, jsonBlock) {
+  const cur = !!(jsonBlock ? (ewCenso[jsonBlock] || {})[id] : ewDados[id]);
+  ewSetVal(id, !cur, jsonBlock);
+  // Atualiza só a classe/checked sem re-render total (mantém scroll)
+  const target = (evt && evt.currentTarget) || (evt && evt.target) || null;
+  const item = target && target.closest ? target.closest('.ew-check-item') : null;
+  if (item) {
+    const nowChecked = !cur;
+    item.classList.toggle('checked', nowChecked);
+    const input = item.querySelector('input[type=checkbox]');
+    if (input) input.checked = nowChecked;
+  }
+  ewAtualizarFooter();
+}
+
+// =====================================================================
+// NAVEGAÇÃO
+// =====================================================================
+function ewIrEtapa(i) {
+  const etapas = ewEtapasVisiveis();
+  if (i < 0 || i >= etapas.length) return;
+  ewEtapaAtual = i;
+  ewRenderEtapa();
+  document.querySelector('.ew-content').scrollTop = 0;
+}
+
+// =====================================================================
+// VALIDAÇÃO / COMPLETUDE
+// =====================================================================
+function ewCampoPreenchido(f, jsonBlock) {
+  const val = ewValOf(f, jsonBlock);
+  if (f.type === 'checkbox') return val === true;
+  if (f.type === 'checkbox-group') return Array.isArray(val) && val.length > 0;
+  return val !== undefined && val !== null && String(val).trim() !== '';
+}
+
+function ewEtapaCompleta(etapa) {
+  let ok = true;
+  etapa.groups.forEach(grp => grp.fields.forEach(f => {
+    if (!f.required) return;
+    if (f.condition && !f.condition(ewGetVal)) return;
+    if (!ewCampoPreenchido(f, grp.jsonBlock)) ok = false;
+  }));
+  return ok;
+}
+
+function ewCamposObrigatoriosTotais() {
+  let total = 0, preenchidos = 0;
+  ewEtapasVisiveis().forEach(etapa => etapa.groups.forEach(grp => grp.fields.forEach(f => {
+    if (!f.required) return;
+    if (f.condition && !f.condition(ewGetVal)) return;
+    total++;
+    if (ewCampoPreenchido(f, grp.jsonBlock)) preenchidos++;
+  })));
+  return { total, preenchidos };
+}
+
+function ewCompletudeGeral() {
+  // Considera TODOS os campos (obrigatórios + opcionais) visíveis, para o indicador geral
+  let total = 0, preenchidos = 0;
+  ewEtapasVisiveis().forEach(etapa => etapa.groups.forEach(grp => grp.fields.forEach(f => {
+    if (f.condition && !f.condition(ewGetVal)) return;
+    total++;
+    if (ewCampoPreenchido(f, grp.jsonBlock)) preenchidos++;
+  })));
+  return total ? Math.round((preenchidos / total) * 100) : 0;
+}
+
+function ewAtualizarFooter() {
+  const { total, preenchidos } = ewCamposObrigatoriosTotais();
+  const pct = total ? Math.round((preenchidos / total) * 100) : 100;
+  document.getElementById('ew-progress-fill').style.width = pct + '%';
+  document.getElementById('ew-progress-txt').textContent = `${preenchidos} de ${total} obrigatórios`;
+
+  const geral = ewCompletudeGeral();
+  document.getElementById('ew-completude-txt').textContent = `${geral}% completo`;
+
+  const etapas = ewEtapasVisiveis();
+  document.getElementById('ew-btn-prev').disabled = ewEtapaAtual === 0;
+  document.getElementById('ew-btn-next').style.display = ewEtapaAtual === etapas.length - 1 ? 'none' : '';
+
+  const podeSalvar = total === preenchidos;
+  document.getElementById('ew-btn-salvar').disabled = !podeSalvar;
+  document.getElementById('ew-btn-salvar').title = podeSalvar ? '' : 'Preencha os campos obrigatórios (destacados em vermelho) para salvar';
+}
+
+// =====================================================================
+// SALVAR
+// =====================================================================
+async function salvarEscolaWizard() {
+  const { total, preenchidos } = ewCamposObrigatoriosTotais();
+  if (total !== preenchidos) {
+    // Acha a primeira etapa incompleta e leva o usuário até ela
+    const etapas = ewEtapasVisiveis();
+    const idxIncompleta = etapas.findIndex(e => !ewEtapaCompleta(e));
+    if (idxIncompleta >= 0) ewIrEtapa(idxIncompleta);
+    ewMostrarAlerta('Preencha todos os campos obrigatórios (marcados com *) antes de salvar.', 'error');
+    return;
+  }
+
+  const btn = document.getElementById('ew-btn-salvar');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try {
+    const body = { ...ewDados };
+    // Normalizações de tipo
+    if (body.oferece_alimentacao !== undefined) body.oferece_alimentacao = body.oferece_alimentacao === 'Sim';
+    if (body.escola_indigena !== undefined) body.escola_indigena = body.escola_indigena === 'Sim';
+    if (body.possui_convenio !== undefined) body.possui_convenio = body.possui_convenio === 'Sim';
+    body.censo_2026 = ewCenso;
+
+    if (ewEditId) {
+      await api(`escolas?id=eq.${ewEditId}`, { method: 'PATCH', body: JSON.stringify(body) });
+      showToast('Escola atualizada com sucesso!', 'success');
+    } else {
+      await api('escolas', { method: 'POST', body: JSON.stringify(body) });
+      showToast('Escola cadastrada com sucesso!', 'success');
+    }
+    fecharWizardEscola();
+    if (typeof carregarEscolas === 'function') await carregarEscolas();
+  } catch (e) {
+    ewMostrarAlerta(e.message || 'Erro ao salvar escola.', 'error');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Salvar escola';
+  }
+}
+
+function ewMostrarAlerta(msg, tipo) {
+  const el = document.getElementById('ew-alert');
+  el.textContent = msg;
+  el.className = `alert ${tipo}`;
+  el.style.display = 'block';
+  if (typeof el.scrollIntoView === 'function') {
+    el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+
 </script>
 </body>
 </html>
