@@ -244,6 +244,32 @@
 
     .textarea-alunos { font-family: 'Sora', monospace; font-size: 13px; }
 
+    /* TOAST */
+    .toast-wrap {
+      position: fixed; bottom: 24px; right: 24px; z-index: 999;
+      display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+    }
+    .toast {
+      display: flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: 10px;
+      background: var(--white); box-shadow: 0 8px 24px rgba(30,18,72,0.16);
+      font-family: 'Sora', sans-serif; font-size: 13px; font-weight: 600; color: var(--text);
+      border-left: 4px solid var(--purple);
+      max-width: 340px;
+      animation: toastIn 0.25s ease;
+    }
+    .toast.success { border-left-color: var(--success); }
+    .toast.danger, .toast.error { border-left-color: var(--danger); }
+    .toast.warning { border-left-color: var(--orange); }
+    .toast.leaving { animation: toastOut 0.2s ease forwards; }
+    .toast svg { flex-shrink: 0; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateX(0); } to { opacity: 0; transform: translateX(20px); } }
+    @media (max-width: 768px) {
+      .toast-wrap { left: 12px; right: 12px; bottom: 12px; align-items: stretch; }
+      .toast { max-width: none; }
+    }
+
     @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -1211,6 +1237,8 @@
 </div>
 
 <!-- MODAL GENÉRICO -->
+<div class="toast-wrap" id="toast-wrap"></div>
+
 <div class="modal-overlay" id="modal-overlay" onclick="fecharModal(event)">
   <div class="modal" id="modal">
     <div class="modal-header">
@@ -1238,6 +1266,27 @@ const SUPABASE_URL = 'https://biocjxggjjfeqmpuysik.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpb2NqeGdnampmZXFtcHV5c2lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODUwOTQsImV4cCI6MjA4OTc2MTA5NH0.3bL3dKqiWGoHROE6vSzf-7Orp0GLcLpn4mHtUSwC0dU';
 
 const escHtml = s => (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+
+// TOAST NOTIFICATIONS
+const TOAST_ICONS = {
+  success: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#22C55E" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>',
+  danger:  '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#EF4444" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+  warning: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#FF8C38" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+  info:    '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6C4FD4" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+};
+function showToast(message, type = 'info', duration = 3200) {
+  const wrap = document.getElementById('toast-wrap');
+  if (!wrap) { console.log(`[toast:${type}]`, message); return; }
+  const el = document.createElement('div');
+  const cls = type === 'error' ? 'danger' : type; // aceita 'error' como sinônimo de 'danger'
+  el.className = `toast ${cls}`;
+  el.innerHTML = `${TOAST_ICONS[cls] || TOAST_ICONS.info}<span>${escHtml(message)}</span>`;
+  wrap.appendChild(el);
+  setTimeout(() => {
+    el.classList.add('leaving');
+    setTimeout(() => el.remove(), 200);
+  }, duration);
+}
 
 const api = async (path, opts = {}) => {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
