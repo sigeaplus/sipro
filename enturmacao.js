@@ -1,97 +1,20 @@
 // ============================================================
-// enturmacao.js — Página standalone (não depende de shared.js)
-// Segue o mesmo contrato de apiSec()/openModal()/closeModal() usado
-// em secretaria_dashboard.html e turmas_alunos.html
+// enturmacao.js — usa shared.js (mesmo padrão de turmas_alunos.html
+// e secretaria_dashboard.html)
+//
+// De shared.js já vêm prontos: SUPABASE_URL, SUPABASE_KEY, apiSec,
+// dbFrom, db, currentUser, currentSchoolId, currentSchoolData,
+// userSchools, singleSchool, checkSession, loadUserProfile,
+// loadUserSchools, showToast, val, corTurno, corStatus, formatDate,
+// escapeHtml, handleLogout, setupDateDefaults.
+//
+// Este arquivo só precisa definir onSchoolsReady() (chamada pelo
+// shared.js assim que currentSchoolId estiver pronto) e a lógica
+// específica desta página.
 // ============================================================
 
-// ---------- CONFIG SUPABASE ----------
-// TODO Rick: preencher com a URL e a chave anon do projeto (mesmas do sistema atual)
-const SUPABASE_URL = 'https://biocjxggjjfeqmpuysik.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJpb2NqeGdnampmZXFtcHV5c2lrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQxODUwOTQsImV4cCI6MjA4OTc2MTA5NH0.3bL3dKqiWGoHROE6vSzf-7Orp0GLcLpn4mHtUSwC0dU';
+let currentTurmaId = null;
 
-// ---------- HELPER PostgREST local (mesmo contrato do apiSec de shared.js) ----------
-// Retorna sempre { data, error } — igual ao apiSec original, para que o código
-// de enturmar/remanejar possa ser reaproveitado sem alterações no futuro.
-async function apiSec(queryString, options = {}) {
-  try {
-    const url = `${SUPABASE_URL}/rest/v1/${queryString}`;
-    const headers = {
-      'apikey': SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`,
-      'Content-Type': 'application/json',
-    };
-    if (options.method && options.method !== 'GET') {
-      headers['Prefer'] = 'return=representation';
-    }
-    const resp = await fetch(url, {
-      method: options.method || 'GET',
-      headers,
-      body: options.body // já vem como JSON.stringify(...) do chamador, igual ao padrão original
-    });
-    if (!resp.ok) {
-      const errText = await resp.text().catch(() => '');
-      let message = errText;
-      try { message = JSON.parse(errText).message || errText; } catch (_) {}
-      return { data: null, error: { message } };
-    }
-    if (resp.status === 204) return { data: [], error: null };
-    const data = await resp.json();
-    return { data, error: null };
-  } catch (err) {
-    return { data: null, error: { message: err.message } };
-  }
-}
-
-// ---------- HELPERS GERAIS (reimplementados localmente, pois vêm de shared.js) ----------
-function val(id) { const el = document.getElementById(id); return el ? el.value : ''; }
-
-function escapeHtml(str) {
-  if (str === null || str === undefined) return '';
-  return String(str)
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;').replace(/'/g, '&#039;');
-}
-
-function formatDate(dateStr) {
-  if (!dateStr) return '—';
-  const d = new Date(dateStr + 'T00:00:00');
-  if (isNaN(d)) return dateStr;
-  return d.toLocaleDateString('pt-BR');
-}
-
-function nomeAluno(a) {
-  return a.nome_completo || a.nome || 'Sem Nome';
-}
-
-function corSituacao(situacao) {
-  const map = { 'Ativo': 'badge-success', 'Transferido': 'badge-warning', 'Abandono': 'badge-danger', 'Concluído': 'badge-info' };
-  return map[situacao] || 'badge-gray';
-}
-
-function showToast(msg, tipo = 'success') {
-  const wrap = document.getElementById('toastWrap');
-  const icons = { success: 'fa-circle-check', warning: 'fa-triangle-exclamation', danger: 'fa-circle-exclamation' };
-  const div = document.createElement('div');
-  div.className = `toast ${tipo}`;
-  div.innerHTML = `<i class="fas ${icons[tipo] || icons.success}"></i> ${escapeHtml(msg)}`;
-  wrap.appendChild(div);
-  setTimeout(() => div.remove(), 3800);
-}
-
-// openModal/closeModal seguem o mesmo contrato do sistema original (classe .open)
-function openModal(id) { document.getElementById(id).classList.add('open'); }
-function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-
-function toggleSidebar() {
-  document.getElementById('sidebar').classList.toggle('open');
-}
-
-function trocarPagina(idAtiva) {
-  document.querySelectorAll('#content .page').forEach(el => el.classList.remove('active'));
-  document.getElementById(idAtiva).classList.add('active');
-}
-
-// ---------- ESTADO GLOBAL ----------
 const state = {
   turmaAtual: null,
   isEnsinoMedio: false,
@@ -100,8 +23,37 @@ const state = {
   selecionadosSem: new Set(),
   selecionadosEnt: new Set(),
   candidatosEnturmar: new Map(), // id -> objeto aluno (marcados na tela cheia)
-  candidatoConferencia: null,
-  modoConferenciaSomenteLeitura: false
+  candidatoConferencia: null
+};
+
+// ---------- HELPERS PRÓPRIOS DESTA PÁGINA (não vêm de shared.js) ----------
+function nomeAluno(a) {
+  return a.nome_completo || a.nome || 'Sem Nome';
+}
+
+function badgeSituacao(situacao) {
+  // Reaproveita a lógica de cor de corStatus() do shared.js (retorna 'success'/'warning'/etc)
+  return `badge-${corStatus(situacao)}`;
+}
+
+function trocarPagina(idAtiva) {
+  document.querySelectorAll('#content .page').forEach(el => el.classList.remove('active'));
+  document.getElementById(idAtiva).classList.add('active');
+}
+
+// ============================================================
+// onSchoolsReady — disparado pelo shared.js (dentro de loadUserSchools)
+// assim que currentSchoolId está definido. Aqui só ficam os loads
+// específicos DESTA página.
+// ============================================================
+async function onSchoolsReady() {
+  await pesquisarTurmas();
+}
+
+// ===== INICIALIZAÇÃO =====
+window.onload = async () => {
+  setupDateDefaults();
+  await checkSession();
 };
 
 // ============================================================
@@ -112,9 +64,12 @@ function limparFiltros() {
     const el = document.getElementById(id);
     if (el) el.value = '';
   });
+  pesquisarTurmas();
 }
 
 async function pesquisarTurmas() {
+  if (!currentSchoolId) return;
+
   const tbody = document.getElementById('tbodyTurmas');
   tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Buscando...</p></div></td></tr>`;
 
@@ -126,7 +81,7 @@ async function pesquisarTurmas() {
   const etapa = val('fEtapa');
   const turno = val('fTurno');
 
-  let filtros = [];
+  let filtros = [`escola_id=eq.${currentSchoolId}`];
   if (codigo) filtros.push(`id=eq.${encodeURIComponent(codigo)}`);
   if (nome) filtros.push(`nome=ilike.*${encodeURIComponent(nome)}*`);
   if (periodo) filtros.push(`periodo_letivo=eq.${encodeURIComponent(periodo)}`);
@@ -135,7 +90,7 @@ async function pesquisarTurmas() {
   if (etapa) filtros.push(`etapa=eq.${encodeURIComponent(etapa)}`);
   if (turno) filtros.push(`turno=eq.${encodeURIComponent(turno)}`);
 
-  const query = `turmas?select=*${filtros.length ? '&' + filtros.join('&') : ''}&order=nome.asc`;
+  const query = `turmas?select=*&${filtros.join('&')}&order=nome.asc`;
   const { data: turmas, error } = await apiSec(query);
 
   if (error) {
@@ -163,7 +118,7 @@ function renderTurmas(turmas) {
       <td>${escapeHtml(t.tipo_ensino || '—')}</td>
       <td>${escapeHtml(t.nivel || '—')}</td>
       <td>${escapeHtml(t.etapa || '—')}</td>
-      <td>${escapeHtml(t.turno || '—')}</td>
+      <td><span class="badge badge-${corTurno(t.turno)}">${escapeHtml(t.turno || '—')}</span></td>
       <td class="td-actions">
         <button class="btn btn-sm btn-primary" onclick="abrirGerenciamento('${t.id}')">
           <i class="fas fa-user-group"></i> Enturmação
@@ -182,6 +137,7 @@ async function abrirGerenciamento(turmaId) {
     showToast('Erro ao carregar turma', 'danger');
     return;
   }
+  currentTurmaId = turmaId;
   state.turmaAtual = turmas[0];
   state.isEnsinoMedio = /m[ée]dio/i.test(state.turmaAtual.nivel || '');
 
@@ -199,7 +155,7 @@ function renderTurmaHeader() {
   document.getElementById('tbodyTurmaHeader').innerHTML = `
     <tr>
       <td><strong>${escapeHtml(t.nome)}</strong></td>
-      <td>${escapeHtml(t.turno || '—')}</td>
+      <td><span class="badge badge-${corTurno(t.turno)}">${escapeHtml(t.turno || '—')}</span></td>
       <td>${escapeHtml(t.periodo_letivo || '—')}</td>
       <td>${escapeHtml(t.periodo_letivo || '—')}</td>
       <td>${escapeHtml(t.tipo_ensino || '—')}</td>
@@ -212,16 +168,14 @@ function renderTurmaHeader() {
 
 async function carregarAlunosSemTurma() {
   const tbody = document.getElementById('tbodySemTurma');
-  tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></td></tr>`;
+  tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Carregando...</p></div></td></tr>`;
 
-  // Filtro confirmado com o usuário: turma_id IS NULL
-  const escolaFiltro = state.turmaAtual.escola_id ? `&escola_id=eq.${state.turmaAtual.escola_id}` : '';
   const { data: alunos, error } = await apiSec(
-    `alunos?turma_id=is.null${escolaFiltro}&select=id,nome_completo,nome,codigo_simade,codigo_inep,sexo,turno,data_nascimento,naturalidade,nome_mae,nome_pai,escola_anterior&order=nome_completo.asc`
+    `alunos?turma_id=is.null&escola_id=eq.${currentSchoolId}&select=id,nome_completo,nome,codigo_simade,codigo_inep,turno,data_nascimento,naturalidade,nome_mae,nome_pai,escola_anterior&order=nome_completo.asc`
   );
 
   if (error) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Erro ao carregar alunos</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-triangle-exclamation"></i><p>Erro ao carregar alunos</p></div></td></tr>`;
     return;
   }
 
@@ -236,7 +190,7 @@ function renderAlunosSemTurma(lista) {
   document.getElementById('qtdSemTurma').textContent = `Quantidade de alunos: ${lista.length}`;
 
   if (!lista.length) {
-    tbody.innerHTML = `<tr><td colspan="6"><div class="empty-state"><i class="fas fa-users"></i><p>Não há dados disponíveis</p></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state"><i class="fas fa-users"></i><p>Não há dados disponíveis</p></div></td></tr>`;
     return;
   }
 
@@ -245,8 +199,7 @@ function renderAlunosSemTurma(lista) {
       <td><input type="checkbox" data-id="${a.id}" onchange="toggleSelecaoSem('${a.id}', this.checked)" ${state.selecionadosSem.has(a.id) ? 'checked' : ''}></td>
       <td>${escapeHtml(a.codigo_simade || '—')}</td>
       <td>${escapeHtml(nomeAluno(a))}</td>
-      <td>${escapeHtml(a.sexo || '—')}</td>
-      <td>${escapeHtml(a.turno || '—')}</td>
+      <td><span class="badge badge-${corTurno(a.turno)}">${escapeHtml(a.turno || '—')}</span></td>
       <td class="td-actions">
         <button class="btn btn-sm btn-outline btn-icon" onclick="verDetalheAluno('${a.id}')" title="Ver detalhes">
           <i class="fas fa-file-lines"></i>
@@ -334,7 +287,7 @@ function renderAlunosEnturmados(lista) {
     return `
     <tr>
       <td><input type="checkbox" data-id="${a.id}" onchange="toggleSelecaoEnt('${a.id}', this.checked)" ${state.selecionadosEnt.has(a.id) ? 'checked' : ''}></td>
-      <td><span class="badge ${corSituacao(situacao)}">${escapeHtml(situacao)}</span></td>
+      <td><span class="badge ${badgeSituacao(situacao)}">${escapeHtml(situacao)}</span></td>
       <td>${escapeHtml(a.codigo_simade || '—')}</td>
       <td>${escapeHtml(a.codigo_inep || '—')}</td>
       <td>${escapeHtml(nomeAluno(a))}</td>
@@ -389,7 +342,6 @@ function voltarTela1() {
 // ============================================================
 function abrirTelaEnturmar() {
   state.candidatosEnturmar.clear();
-  // Pré-carrega os já selecionados na grade da tela 2 como candidatos
   state.selecionadosSem.forEach(id => {
     const aluno = state.alunosSemTurma.find(a => a.id === id);
     if (aluno) state.candidatosEnturmar.set(id, aluno);
@@ -415,10 +367,9 @@ async function buscarAlunoParaEnturmar() {
   container.innerHTML = `<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Buscando...</p></div>`;
 
   const isNumeric = /^\d+$/.test(termo);
-  const escolaFiltro = state.turmaAtual.escola_id ? `&escola_id=eq.${state.turmaAtual.escola_id}` : '';
   const query = isNumeric
-    ? `alunos?turma_id=is.null${escolaFiltro}&or=(codigo_simade.eq.${termo},codigo_inep.eq.${termo})&select=*`
-    : `alunos?turma_id=is.null${escolaFiltro}&or=(nome_completo.ilike.*${encodeURIComponent(termo)}*,nome.ilike.*${encodeURIComponent(termo)}*)&select=*`;
+    ? `alunos?turma_id=is.null&escola_id=eq.${currentSchoolId}&or=(codigo_simade.eq.${termo},codigo_inep.eq.${termo})&select=*`
+    : `alunos?turma_id=is.null&escola_id=eq.${currentSchoolId}&or=(nome_completo.ilike.*${encodeURIComponent(termo)}*,nome.ilike.*${encodeURIComponent(termo)}*)&select=*`;
 
   const { data: alunos, error } = await apiSec(query);
 
@@ -449,7 +400,6 @@ async function buscarAlunoParaEnturmar() {
 
 function abrirConferencia(aluno) {
   state.candidatoConferencia = aluno;
-  state.modoConferenciaSomenteLeitura = false;
   document.getElementById('btnMarcarConferido').style.display = '';
   renderConferenciaBody(aluno);
   openModal('modalConferencia');
@@ -483,7 +433,7 @@ function marcarAlunoConferido() {
   state.candidatosEnturmar.set(a.id, a);
   renderCandidatosMarcados();
   closeModal('modalConferencia');
-  showToast(`${nomeAluno(a)} marcado para enturmar`);
+  showToast(`${nomeAluno(a)} marcado para enturmar`, 'success');
 }
 
 function removerCandidato(id) {
@@ -555,7 +505,6 @@ function abrirModalRemanejar() {
   if (state.selecionadosEnt.size === 0) return;
   document.getElementById('remTurno').value = '';
   document.getElementById('remTurma').innerHTML = '<option value="">Selecione o turno primeiro...</option>';
-  document.getElementById('remData').value = new Date().toISOString().slice(0, 10);
   openModal('remanejModal');
 }
 
@@ -571,7 +520,7 @@ async function carregarTurmasDestino(turno) {
   select.innerHTML = '<option>Carregando...</option>';
 
   const { data: turmas, error } = await apiSec(
-    `turmas?turno=eq.${encodeURIComponent(turno)}&id=neq.${state.turmaAtual.id}&select=id,nome`
+    `turmas?turno=eq.${encodeURIComponent(turno)}&escola_id=eq.${currentSchoolId}&id=neq.${state.turmaAtual.id}&select=id,nome`
   );
 
   if (error) { select.innerHTML = '<option value="">Erro ao carregar turmas</option>'; return; }
@@ -614,7 +563,6 @@ function verDetalheAluno(id, isEnturmado = false) {
   const aluno = lista.find(a => a.id === id);
   if (!aluno) return;
 
-  state.modoConferenciaSomenteLeitura = true;
   renderConferenciaBody(aluno);
   document.getElementById('btnMarcarConferido').style.display = 'none';
   openModal('modalConferencia');
@@ -634,8 +582,28 @@ function fecharSucesso() {
 }
 
 // ============================================================
-// INIT
+// MODAL / SIDEBAR (mesmo padrão de secretaria_dashboard.html e
+// turmas_alunos.html — não vem de shared.js, é definido por página)
 // ============================================================
+function openModal(id) {
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 document.addEventListener('DOMContentLoaded', () => {
-  // TODO Rick: preencher com dados do usuário logado (mesma lógica de sidebarUserName/Role/AvatarInitials do sistema atual)
+  document.querySelectorAll('.modal-backdrop').forEach(m => {
+    m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+  });
 });
+
+function toggleSidebar() {
+  const s = document.getElementById('sidebar');
+  const m = document.getElementById('main');
+  const o = document.getElementById('sidebar-overlay');
+  if (window.innerWidth > 768) {
+    s.classList.toggle('collapsed');
+    m.classList.toggle('expanded');
+  } else {
+    s.classList.toggle('open');
+    o.classList.toggle('open');
+  }
+}
